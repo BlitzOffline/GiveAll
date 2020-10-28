@@ -204,7 +204,7 @@ class CommandGiveAll : CommandBase() {
             if (player.inventory.firstEmpty() != -1) { itemsReceived.replace("%amount%", amount.toString()).replace("%material%", material.name.toLowerCase()).msg(player) }
             else { inventoryFull.msg(sender) }
         }
-        itemsSent.replace("%amount%", amount.toString()).replace("%material%", material.name.toLowerCase()).replace("%radius%", radius.toString()).msg(sender)
+        itemsSent.replace("%amount%", amount.toString()).replace("%material%", material.name.toLowerCase()).replace("%radius%", radius.toInt().toString()).msg(sender)
     }
 
 
@@ -255,8 +255,8 @@ class CommandGiveAll : CommandBase() {
                     wrongWorldName.msg(sender)
                     return
                 }
-                checkWorld = true
                 players = world.players
+                checkWorld = true
             }
             else -> {
                 val location = sender.location
@@ -276,7 +276,9 @@ class CommandGiveAll : CommandBase() {
             return
         }
 
-        val item = sender.inventory.itemInMainHand
+        // The item is cloned because it seems like if the item is changed in the player inventory's in the middle of the process, it will give the new items to the player.
+        val item = sender.inventory.itemInMainHand.clone()
+        val amount = item.amount
         if (item.type == Material.AIR) {
             itemCannotBeAir.msg(sender)
             return
@@ -284,23 +286,22 @@ class CommandGiveAll : CommandBase() {
 
         for (player in players) {
             if (requirePermissionToGetItems && !player.hasPermission(giveAllReceivePermission)) continue
-            player.inventory.addItem(item)
+            player.inventory.addItem(item.clone())
 
             if (player.inventory.firstEmpty() != -1) { itemsReceived.replace("%amount%", item.amount.toString()).replace("%material%", item.type.name.toLowerCase()).msg(player) }
             else { inventoryFull.msg(player) }
         }
         when {
             checkWorld -> {
-                itemsSentWorld.replace("%amount%", item.amount.toString()).replace("%material%", item.type.name.toLowerCase().replace("%region%", argument.toString())).msg(sender)
+                itemsSentWorld.replace("%amount%", amount.toString()).replace("%material%", item.type.name.toLowerCase()).replace("%world%", argument.toString()).msg(sender)
             }
             checkRadius -> {
-                itemsSentRadius.replace("%amount%", item.amount.toString()).replace("%material%", item.type.name.toLowerCase().replace("%world%", argument.toString())).msg(sender)
+                itemsSentRadius.replace("%amount%", amount.toString()).replace("%material%", item.type.name.toLowerCase()).replace("%radius%", argument.toString()).msg(sender)
             }
             else -> {
-                itemsSent.replace("%amount%", item.amount.toString()).replace("%material%", item.type.name.toLowerCase()).msg(sender)
+                itemsSent.replace("%amount%", amount.toString()).replace("%material%", item.type.name.toLowerCase()).msg(sender)
             }
         }
-        itemsSent.replace("%amount%", item.amount.toString()).replace("%material%", item.type.name.toLowerCase()).msg(sender)
     }
 
 
@@ -420,14 +421,15 @@ class CommandGiveAll : CommandBase() {
             return
         }
 
-        "&6GiveAll by BlitzGamer_88".msg(sender)
         "".msg(sender)
-        "&e* &7/giveAll [material] <amount> &8-&f give items to all players".msg(sender)
-        "&e* &7/giveAll world [world] [material] <amount> &8-&f give items to all players from a world".msg(sender)
-        "&e* &7/giveAll radius [radius] [material] <amount> &8-&f give items to all players in a radius".msg(sender)
-        "&e* &7/giveAll money [amount] <world/radius> &8-&f give money to all players".msg(sender)
-        "&e* &7/giveAll hand <world/radius> &8-&f give the items you hold in your hand to all players".msg(sender)
-        "&e* &7/giveAll reload &8-&f reload the plugin".msg(sender)
+        "&7---- &6GiveAll by BlitzGamer_88 &7----".msg(sender)
+        "".msg(sender)
+        "&7/giveAll [material] <amount> &8-&f give items to all players".msg(sender)
+        "&7/giveAll world [world] [material] <amount> &8-&f give items to all players from a world".msg(sender)
+        "&7/giveAll radius [radius] [material] <amount> &8-&f give items to all players in a radius".msg(sender)
+        "&7/giveAll money [amount] <world/radius> &8-&f give money to all players".msg(sender)
+        "&7/giveAll hand <world/radius> &8-&f give the items you hold in your hand to all players".msg(sender)
+        "&7/giveAll reload &8-&f reload the plugin".msg(sender)
 
     }
 
