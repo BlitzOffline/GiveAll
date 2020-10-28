@@ -1,14 +1,13 @@
 plugins {
 
     id 'java'
-    id 'me.bristermitten.pdm' version '0.0.26'
-    id 'com.github.johnrengelman.shadow' version '6.0.0'
+    id 'me.bristermitten.pdm' version '0.0.28'
     id 'org.jetbrains.kotlin.jvm' version '1.4.0'
 
 }
 
 group 'me.blitzgamer_88'
-version '0.0.2'
+version '0.0.3'
 
 repositories {
 
@@ -31,11 +30,6 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
-}
-
-shadowJar {
-    minimize()
-    archiveClassifier = ""
 }
 
 jar.dependsOn project.tasks.getByName('pdm')

@@ -1,8 +1,10 @@
 package me.blitzgamer_88.giveall.cmd
 
-import me.blitzgamer_88.giveall.GiveAll
 import me.blitzgamer_88.giveall.conf.Config
-import me.blitzgamer_88.giveall.util.color
+import me.blitzgamer_88.giveall.util.conf
+import me.blitzgamer_88.giveall.util.econ
+import me.blitzgamer_88.giveall.util.msg
+import me.blitzgamer_88.giveall.util.setupEconomy
 import me.clip.placeholderapi.PlaceholderAPI
 import me.mattstudios.mf.annotations.*
 import me.mattstudios.mf.base.CommandBase
@@ -16,37 +18,40 @@ import org.bukkit.util.BoundingBox
 
 @Command("giveall")
 @Alias("gall")
-class CommandGiveAll(private val mainClass: GiveAll) : CommandBase() {
+class CommandGiveAll : CommandBase() {
 
     @Default
     fun giveAll(sender: CommandSender, @Completion("#materials") material: Material, @Optional amt: Int?) {
-        val giveItemsToSender = mainClass.conf().getProperty(Config.giveItemsToSender)
-        val requirePermissionToGetItems = mainClass.conf().getProperty(Config.requirePermissionToGetItems)
+        // Requirements
+        val giveItemsToSender = conf().getProperty(Config.giveItemsToSender)
+        val requirePermissionToGetItems = conf().getProperty(Config.requirePermissionToGetItems)
 
-        val giveAllPermission = mainClass.conf().getProperty(Config.giveAllPermission)
-        val giveAllReceivePermission = mainClass.conf().getProperty(Config.giveAllReceivePermission)
-        val giveAllMainPermission = mainClass.conf().getProperty(Config.giveAllMainPermission)
+        // Permissions
+        val giveAllPermission = conf().getProperty(Config.giveAllPermission)
+        val giveAllReceivePermission = conf().getProperty(Config.giveAllReceivePermission)
+        val giveAllMainPermission = conf().getProperty(Config.giveAllMainPermission)
 
-        val itemsReceived = mainClass.conf().getProperty(Config.itemsReceived).color()
-        val itemsSent = mainClass.conf().getProperty(Config.itemsSent).color()
-        val noOneOnline = mainClass.conf().getProperty(Config.noOneOnline).color()
-        val noPermission = mainClass.conf().getProperty(Config.noPermission).color()
-        val inventoryFull = mainClass.conf().getProperty(Config.fullInventory).color()
-        val onlyYouOnline = mainClass.conf().getProperty(Config.onlyYouOnline).color()
+        // Messages
+        val itemsReceived = conf().getProperty(Config.itemsReceived)
+        val itemsSent = conf().getProperty(Config.itemsSent)
+        val noOneOnline = conf().getProperty(Config.noOneOnline)
+        val noPermission = conf().getProperty(Config.noPermission)
+        val inventoryFull = conf().getProperty(Config.fullInventory)
+        val onlyYouOnline = conf().getProperty(Config.onlyYouOnline)
 
         if (sender is Player && !sender.hasPermission(giveAllPermission) && !sender.hasPermission(giveAllMainPermission)) {
-            sender.sendMessage(noPermission)
+            noPermission.msg(sender)
             return
         }
 
         val players = getServer().onlinePlayers
         if (players.isEmpty()) {
-            sender.sendMessage(noOneOnline)
+            noOneOnline.msg(sender)
             return
         }
 
         if (sender is Player && players.size == 1 && !giveItemsToSender) {
-            sender.sendMessage(PlaceholderAPI.setPlaceholders(sender, onlyYouOnline))
+            onlyYouOnline.msg(sender)
             return
         }
 
@@ -58,124 +63,113 @@ class CommandGiveAll(private val mainClass: GiveAll) : CommandBase() {
             amt.toString().toIntOrNull()
         } else {
             material.maxStackSize
-        }
+        } ?: return
 
-        val materialName = material.name.toLowerCase()
-        val item = amount?.let { ItemStack(material, it) }
-        val iReceived = itemsReceived.replace("%amount%", amount.toString()).replace("%material%", materialName)
-        val iSent = itemsSent.replace("%amount%", amount.toString()).replace("%material%", materialName)
-        for (p in players) {
-            if (requirePermissionToGetItems && !p.hasPermission(giveAllReceivePermission)) {
-                continue
-            }
-            if (p.inventory.firstEmpty() != -1) {
-                p.inventory.addItem(item)
-                p.sendMessage(PlaceholderAPI.setPlaceholders(p, iReceived))
+        val item = ItemStack(material, amount)
+        for (player in players) {
+            if (requirePermissionToGetItems && !player.hasPermission(giveAllReceivePermission)) continue
+            player.inventory.addItem(item)
+            if (player.inventory.firstEmpty() != -1) {
+                itemsReceived.replace("%amount%", amount.toString()).replace("%material%", material.name.toLowerCase()).msg(player)
             } else {
-                p.inventory.addItem(item)
-                p.sendMessage(PlaceholderAPI.setPlaceholders(p, inventoryFull))
+                inventoryFull.msg(player)
             }
         }
-        sender.sendMessage(iSent)
+        itemsSent.replace("%amount%", amount.toString()).replace("%material%", material.name.toLowerCase()).msg(sender)
         return
     }
 
 
     @SubCommand("world")
     fun giveAllWorld(sender: CommandSender, @Completion("#worlds") worldName: String, @Completion("#materials") material: Material, @Optional amt: Int?) {
-        val giveItemsToSender = mainClass.conf().getProperty(Config.giveItemsToSender)
-        val requirePermissionToGetItems = mainClass.conf().getProperty(Config.requirePermissionToGetItems)
+        // Requirements
+        val giveItemsToSender = conf().getProperty(Config.giveItemsToSender)
+        val requirePermissionToGetItems = conf().getProperty(Config.requirePermissionToGetItems)
 
-        val giveAllWorldPermission = mainClass.conf().getProperty(Config.giveAllWorldPermission)
-        val giveAllReceivePermission = mainClass.conf().getProperty(Config.giveAllReceivePermission)
-        val giveAllMainPermission = mainClass.conf().getProperty(Config.giveAllMainPermission)
+        // Permissions
+        val giveAllWorldPermission = conf().getProperty(Config.giveAllWorldPermission)
+        val giveAllReceivePermission = conf().getProperty(Config.giveAllReceivePermission)
+        val giveAllMainPermission = conf().getProperty(Config.giveAllMainPermission)
 
-        val itemsReceived = mainClass.conf().getProperty(Config.itemsReceived).color()
-        val itemsSent = mainClass.conf().getProperty(Config.itemsSentWorld).color()
-        val wrongWorldName = mainClass.conf().getProperty(Config.wrongWorldName).color()
-        val noOneOnline = mainClass.conf().getProperty(Config.noOneOnline).color()
-        val noPermission = mainClass.conf().getProperty(Config.noPermission).color()
-        val inventoryFull = mainClass.conf().getProperty(Config.fullInventory).color()
-        val onlyYouOnline = mainClass.conf().getProperty(Config.onlyYouOnline).color()
+        // Messages
+        val itemsReceived = conf().getProperty(Config.itemsReceived)
+        val itemsSent = conf().getProperty(Config.itemsSentWorld)
+        val wrongWorldName = conf().getProperty(Config.wrongWorldName)
+        val noOneOnline = conf().getProperty(Config.noOneOnline)
+        val noPermission = conf().getProperty(Config.noPermission)
+        val inventoryFull = conf().getProperty(Config.fullInventory)
+        val onlyYouOnline = conf().getProperty(Config.onlyYouOnline)
 
         if (sender is Player && !sender.hasPermission(giveAllWorldPermission) && !sender.hasPermission(giveAllMainPermission)) {
-            sender.sendMessage(noPermission)
+            noPermission.msg(sender)
             return
         }
 
         val world = getServer().getWorld(worldName)
         if (world == null) {
-            sender.sendMessage(wrongWorldName)
+            wrongWorldName.msg(sender)
             return
         }
 
         val players = world.players
         if (players.isEmpty()) {
-            sender.sendMessage(noOneOnline)
+            noOneOnline.msg(sender)
             return
         }
 
         if (sender is Player && sender.world == world && players.size == 1 && !giveItemsToSender) {
-            sender.sendMessage(PlaceholderAPI.setPlaceholders(sender, onlyYouOnline))
+            onlyYouOnline.msg(sender)
             return
         }
 
-        if (sender is Player && sender.world == world && !giveItemsToSender) {
-            players.remove(sender)
-        }
+        if (sender is Player && sender.world == world && !giveItemsToSender) players.remove(sender)
 
         val amount = if (amt.toString().toIntOrNull() != null) {
             amt.toString().toIntOrNull()
         } else {
             material.maxStackSize
-        }
+        } ?: return
 
-        val materialName = material.name.toLowerCase()
-        val item = amount?.let { ItemStack(material, it) }
-        val iReceived = itemsReceived.replace("%amount%", amount.toString()).replace("%material%", materialName)
-        val iSent = itemsSent.replace("%amount%", amount.toString()).replace("%material%", materialName).replace("%world%", worldName)
-        for (p in players) {
-            if (requirePermissionToGetItems && !p.hasPermission(giveAllReceivePermission)) {
-                continue
-            }
-            if (p.inventory.firstEmpty() != -1) {
-                p.inventory.addItem(item)
-                p.sendMessage(PlaceholderAPI.setPlaceholders(p, iReceived))
-            } else {
-                p.inventory.addItem(item)
-                p.sendMessage(PlaceholderAPI.setPlaceholders(p, inventoryFull))
-            }
+        val item = ItemStack(material, amount)
+        for (player in players) {
+            if (requirePermissionToGetItems && !player.hasPermission(giveAllReceivePermission)) continue
+            player.inventory.addItem(item)
+
+            if (player.inventory.firstEmpty() != -1) { itemsReceived.replace("%amount%", amount.toString()).replace("%material%", material.name.toLowerCase()).msg(player) }
+            else { player.sendMessage(PlaceholderAPI.setPlaceholders(player, inventoryFull)) }
         }
-        sender.sendMessage(iSent)
-        return
+        itemsSent.replace("%amount%", amount.toString()).replace("%material%", material.name.toLowerCase()).replace("%world%", worldName).msg(sender)
     }
 
 
     @SubCommand("radius")
     fun giveAllRadius(sender: Player, r: String, @Completion("#materials") material: Material, @Optional amt: Int?) {
-        val giveItemsToSender = mainClass.conf().getProperty(Config.giveItemsToSender)
-        val requirePermissionToGetItems = mainClass.conf().getProperty(Config.requirePermissionToGetItems)
+        // Requirements
+        val giveItemsToSender = conf().getProperty(Config.giveItemsToSender)
+        val requirePermissionToGetItems = conf().getProperty(Config.requirePermissionToGetItems)
 
-        val giveAllRadiusPermission = mainClass.conf().getProperty(Config.giveAllRadiusPermission)
-        val giveAllReceivePermission = mainClass.conf().getProperty(Config.giveAllReceivePermission)
-        val giveAllMainPermission = mainClass.conf().getProperty(Config.giveAllMainPermission)
+        // Permissions
+        val giveAllRadiusPermission = conf().getProperty(Config.giveAllRadiusPermission)
+        val giveAllReceivePermission = conf().getProperty(Config.giveAllReceivePermission)
+        val giveAllMainPermission = conf().getProperty(Config.giveAllMainPermission)
 
-        val itemsReceived = mainClass.conf().getProperty(Config.itemsReceived).color()
-        val itemsSent = mainClass.conf().getProperty(Config.itemsSentRadius).color()
-        val wrongUsage = mainClass.conf().getProperty(Config.wrongUsage).color()
-        val noOneOnline = mainClass.conf().getProperty(Config.noOneOnline).color()
-        val noPermission = mainClass.conf().getProperty(Config.noPermission).color()
-        val inventoryFull = mainClass.conf().getProperty(Config.fullInventory).color()
-        val onlyYouOnline = mainClass.conf().getProperty(Config.onlyYouOnline).color()
+        // Messages
+        val itemsReceived = conf().getProperty(Config.itemsReceived)
+        val itemsSent = conf().getProperty(Config.itemsSentRadius)
+        val wrongUsage = conf().getProperty(Config.wrongUsage)
+        val noOneOnline = conf().getProperty(Config.noOneOnline)
+        val noPermission = conf().getProperty(Config.noPermission)
+        val inventoryFull = conf().getProperty(Config.fullInventory)
+        val onlyYouOnline = conf().getProperty(Config.onlyYouOnline)
 
         if (!sender.hasPermission(giveAllRadiusPermission) && !sender.hasPermission(giveAllMainPermission)) {
-            sender.sendMessage(noPermission)
+            noPermission.msg(sender)
             return
         }
 
         val radius = r.toDoubleOrNull()
         if (radius == null) {
-            sender.sendMessage(wrongUsage)
+            wrongUsage.msg(sender)
             return
         }
 
@@ -186,74 +180,64 @@ class CommandGiveAll(private val mainClass: GiveAll) : CommandBase() {
                 .filterIsInstance(Player::class.java).toMutableList()
 
         if (players.isEmpty()) {
-            sender.sendMessage(noOneOnline)
+            noOneOnline.msg(sender)
             return
         }
 
         if (players.size == 1 && !giveItemsToSender) {
-            sender.sendMessage(PlaceholderAPI.setPlaceholders(sender, onlyYouOnline))
+            onlyYouOnline.msg(sender)
             return
         }
 
-        if (!giveItemsToSender) {
-            players.remove(sender)
-        }
+        if (!giveItemsToSender) { players.remove(sender) }
 
         val amount = if (amt.toString().toIntOrNull() != null) {
             amt.toString().toIntOrNull()
         } else {
             material.maxStackSize
-        }
+        } ?: return
 
-        val materialName = material.name.toLowerCase()
-        val item = amount?.let { ItemStack(material, it) }
-        val iReceived = itemsReceived.replace("%amount%", amount.toString()).replace("%material%", materialName)
-        val iSent = itemsSent.replace("%amount%", amount.toString()).replace("%material%", materialName).replace("%radius%", radius.toString())
-        for (p in players) {
-            if (requirePermissionToGetItems && !p.hasPermission(giveAllReceivePermission)) {
-                continue
-            }
-            if (p.inventory.firstEmpty() != -1) {
-                p.inventory.addItem(item)
-                p.sendMessage(PlaceholderAPI.setPlaceholders(p, iReceived))
-            } else {
-                p.inventory.addItem(item)
-                p.sendMessage(PlaceholderAPI.setPlaceholders(p, inventoryFull))
-            }
+        val item = ItemStack(material, amount)
+        for (player in players) {
+            if (requirePermissionToGetItems && !player.hasPermission(giveAllReceivePermission)) continue
+            player.inventory.addItem(item)
+            if (player.inventory.firstEmpty() != -1) { itemsReceived.replace("%amount%", amount.toString()).replace("%material%", material.name.toLowerCase()).msg(player) }
+            else { inventoryFull.msg(sender) }
         }
-        sender.sendMessage(iSent)
-        return
+        itemsSent.replace("%amount%", amount.toString()).replace("%material%", material.name.toLowerCase()).replace("%radius%", radius.toString()).msg(sender)
     }
 
 
     @SubCommand("hand")
     fun giveAllHand(sender: Player, @Completion("#worlds") @Optional argument: String?) {
-        val giveItemsToSender = mainClass.conf().getProperty(Config.giveItemsToSender)
-        val requirePermissionToGetItems = mainClass.conf().getProperty(Config.requirePermissionToGetItems)
+        // Requirements
+        val giveItemsToSender = conf().getProperty(Config.giveItemsToSender)
+        val requirePermissionToGetItems = conf().getProperty(Config.requirePermissionToGetItems)
 
-        val giveAllHandPermission = mainClass.conf().getProperty(Config.giveAllHandPermission)
-        val giveAllReceivePermission = mainClass.conf().getProperty(Config.giveAllReceivePermission)
-        val giveAllMainPermission = mainClass.conf().getProperty(Config.giveAllMainPermission)
+        // Permissions
+        val giveAllHandPermission = conf().getProperty(Config.giveAllHandPermission)
+        val giveAllReceivePermission = conf().getProperty(Config.giveAllReceivePermission)
+        val giveAllMainPermission = conf().getProperty(Config.giveAllMainPermission)
 
-        val itemsReceived = mainClass.conf().getProperty(Config.itemsReceived).color()
-        val itemsSent = mainClass.conf().getProperty(Config.itemsSent).color()
-        val itemsSentWorld = mainClass.conf().getProperty(Config.itemsSentWorld).color()
-        val itemsSentRadius = mainClass.conf().getProperty(Config.itemsSentRadius).color()
-        val noPermission = mainClass.conf().getProperty(Config.noPermission).color()
-        val inventoryFull = mainClass.conf().getProperty(Config.fullInventory).color()
-        val itemCannotBeAir = mainClass.conf().getProperty(Config.itemCannotBeAir).color()
-        val noOneOnline = mainClass.conf().getProperty(Config.noOneOnline).color()
-        val onlyYouOnline = mainClass.conf().getProperty(Config.onlyYouOnline).color()
-        val wrongWorldName = mainClass.conf().getProperty(Config.wrongWorldName).color()
-        val wrongUsage = mainClass.conf().getProperty(Config.wrongUsage).color()
+        // Messages
+        val itemsReceived = conf().getProperty(Config.itemsReceived)
+        val itemsSent = conf().getProperty(Config.itemsSent)
+        val itemsSentWorld = conf().getProperty(Config.itemsSentWorld)
+        val itemsSentRadius = conf().getProperty(Config.itemsSentRadius)
+        val noPermission = conf().getProperty(Config.noPermission)
+        val inventoryFull = conf().getProperty(Config.fullInventory)
+        val itemCannotBeAir = conf().getProperty(Config.itemCannotBeAir)
+        val noOneOnline = conf().getProperty(Config.noOneOnline)
+        val wrongWorldName = conf().getProperty(Config.wrongWorldName)
+        val wrongUsage = conf().getProperty(Config.wrongUsage)
 
         if (!sender.hasPermission(giveAllHandPermission) && !sender.hasPermission(giveAllMainPermission)) {
-            sender.sendMessage(PlaceholderAPI.setPlaceholders(sender, noPermission))
+            noPermission.msg(sender)
             return
         }
 
         if (argument != null && argument.contains(" ")) {
-            sender.sendMessage(PlaceholderAPI.setPlaceholders(sender, wrongUsage))
+            wrongUsage.msg(sender)
             return
         }
 
@@ -268,11 +252,11 @@ class CommandGiveAll(private val mainClass: GiveAll) : CommandBase() {
             argument.toDoubleOrNull() == null -> {
                 val world = getServer().getWorld(argument)
                 if (world == null) {
-                    sender.sendMessage(PlaceholderAPI.setPlaceholders(sender, wrongWorldName))
+                    wrongWorldName.msg(sender)
                     return
                 }
-                players = world.players
                 checkWorld = true
+                players = world.players
             }
             else -> {
                 val location = sender.location
@@ -285,91 +269,78 @@ class CommandGiveAll(private val mainClass: GiveAll) : CommandBase() {
             }
         }
 
-        if (players.size == 1 && !giveItemsToSender) {
-            sender.sendMessage(PlaceholderAPI.setPlaceholders(sender, onlyYouOnline))
-            return
-        }
+        if (!giveItemsToSender) players.remove(sender)
+
         if (players.isEmpty()) {
-            sender.sendMessage(noOneOnline)
+            noOneOnline.msg(sender)
             return
         }
 
         val item = sender.inventory.itemInMainHand
         if (item.type == Material.AIR) {
-            sender.sendMessage(PlaceholderAPI.setPlaceholders(sender, itemCannotBeAir))
+            itemCannotBeAir.msg(sender)
             return
         }
 
-        val materialName = item.type.name.toLowerCase()
-        val amount = item.amount
-        val iReceived = itemsReceived.replace("%amount%", amount.toString()).replace("%material%", materialName)
-        val iSent = when {
+        for (player in players) {
+            if (requirePermissionToGetItems && !player.hasPermission(giveAllReceivePermission)) continue
+            player.inventory.addItem(item)
+
+            if (player.inventory.firstEmpty() != -1) { itemsReceived.replace("%amount%", item.amount.toString()).replace("%material%", item.type.name.toLowerCase()).msg(player) }
+            else { inventoryFull.msg(player) }
+        }
+        when {
             checkWorld -> {
-                itemsSentWorld.replace("%amount%", amount.toString()).replace("%material%", materialName).replace("%world%", argument.toString())
+                itemsSentWorld.replace("%amount%", item.amount.toString()).replace("%material%", item.type.name.toLowerCase().replace("%region%", argument.toString())).msg(sender)
             }
             checkRadius -> {
-                itemsSentRadius.replace("%amount%", amount.toString()).replace("%material%", materialName).replace("%radius%", argument.toString())
+                itemsSentRadius.replace("%amount%", item.amount.toString()).replace("%material%", item.type.name.toLowerCase().replace("%world%", argument.toString())).msg(sender)
             }
             else -> {
-                itemsSent.replace("%amount%", amount.toString()).replace("%material%", materialName)
+                itemsSent.replace("%amount%", item.amount.toString()).replace("%material%", item.type.name.toLowerCase()).msg(sender)
             }
         }
-
-        for (p in players) {
-            if (requirePermissionToGetItems && !p.hasPermission(giveAllReceivePermission)) {
-                continue
-            }
-            if (p.inventory.firstEmpty() != -1) {
-                if (p == sender && giveItemsToSender) {
-                    p.inventory.addItem(item)
-                    p.sendMessage(PlaceholderAPI.setPlaceholders(p, iReceived))
-                } else if (p != sender) {
-                    p.inventory.addItem(item)
-                    p.sendMessage(PlaceholderAPI.setPlaceholders(p, iReceived))
-                }
-            } else {
-                p.sendMessage(PlaceholderAPI.setPlaceholders(p, inventoryFull))
-            }
-        }
-        sender.sendMessage(PlaceholderAPI.setPlaceholders(sender, iSent))
-        return
+        itemsSent.replace("%amount%", item.amount.toString()).replace("%material%", item.type.name.toLowerCase()).msg(sender)
     }
 
 
     @SubCommand("money")
     fun giveAllMoney(sender: CommandSender, amt: Int?, @Completion("#worlds") @Optional argument: String?) {
-        val giveItemsToSender = mainClass.conf().getProperty(Config.giveItemsToSender)
-        val requirePermissionToGetItems = mainClass.conf().getProperty(Config.requirePermissionToGetItems)
+        // Requirements
+        val giveItemsToSender = conf().getProperty(Config.giveItemsToSender)
+        val requirePermissionToGetItems = conf().getProperty(Config.requirePermissionToGetItems)
 
-        val giveAllMoneyPermission = mainClass.conf().getProperty(Config.giveAllMoneyPermission)
-        val giveAllReceivePermission = mainClass.conf().getProperty(Config.giveAllReceivePermission)
-        val giveAllMainPermission = mainClass.conf().getProperty(Config.giveAllMainPermission)
+        // Permissions
+        val giveAllMoneyPermission = conf().getProperty(Config.giveAllMoneyPermission)
+        val giveAllReceivePermission = conf().getProperty(Config.giveAllReceivePermission)
+        val giveAllMainPermission = conf().getProperty(Config.giveAllMainPermission)
 
+        // Messages
+        val moneyReceived = conf().getProperty(Config.moneyReceived)
+        val moneySent = conf().getProperty(Config.moneySent)
+        val moneySentWorld = conf().getProperty(Config.moneySentWorld)
+        val moneySentRadius = conf().getProperty(Config.moneySentRadius)
+        val noPermission = conf().getProperty(Config.noPermission)
+        val amountCannotBeZero = conf().getProperty(Config.amountCannotBeZero)
+        val onlyPlayersCanUseRadius = conf().getProperty(Config.onlyPlayersCanUseRadius)
+        val noOneOnline = conf().getProperty(Config.noOneOnlineMoney)
+        val wrongWorldName = conf().getProperty(Config.wrongWorldName)
+        val wrongUsage = conf().getProperty(Config.wrongUsage)
 
-        val moneyReceived = mainClass.conf().getProperty(Config.moneyReceived).color()
-        val moneySent = mainClass.conf().getProperty(Config.moneySent).color()
-        val moneySentWorld = mainClass.conf().getProperty(Config.moneySentWorld).color()
-        val moneySentRadius = mainClass.conf().getProperty(Config.moneySentRadius).color()
-        val noPermission = mainClass.conf().getProperty(Config.noPermission).color()
-        val amountCannotBeZero = mainClass.conf().getProperty(Config.amountCannotBeZero).color()
-        val onlyPlayersCanUseRadius = mainClass.conf().getProperty(Config.onlyPlayersCanUseRadius).color()
-        val onlyYouOnline = mainClass.conf().getProperty(Config.onlyYouOnline).color()
-        val noOneOnline = mainClass.conf().getProperty(Config.noOneOnlineMoney).color()
-        val wrongWorldName = mainClass.conf().getProperty(Config.wrongWorldName).color()
-        val wrongUsage = mainClass.conf().getProperty(Config.wrongUsage).color()
+        if (!setupEconomy()) return
 
         if (sender is Player && !sender.hasPermission(giveAllMoneyPermission) && !sender.hasPermission(giveAllMainPermission)) {
-            sender.sendMessage(PlaceholderAPI.setPlaceholders(sender, noPermission))
+            noPermission.msg(sender)
             return
         }
 
         if (argument != null && argument.contains(" ")) {
-            sender.sendMessage(wrongUsage)
+            wrongUsage.msg(sender)
             return
         }
 
         if (argument != null && argument.toDoubleOrNull() != null && sender !is Player) {
-            sender.sendMessage(onlyPlayersCanUseRadius)
+            onlyPlayersCanUseRadius.msg(sender)
             return
         }
 
@@ -384,7 +355,7 @@ class CommandGiveAll(private val mainClass: GiveAll) : CommandBase() {
             argument.toDoubleOrNull() == null -> {
                 val world = getServer().getWorld(argument)
                 if (world == null) {
-                    sender.sendMessage(wrongWorldName)
+                    wrongWorldName.msg(sender)
                     return
                 }
                 players = world.players
@@ -400,70 +371,80 @@ class CommandGiveAll(private val mainClass: GiveAll) : CommandBase() {
                             .filterIsInstance(Player::class.java).toMutableList()
                     checkRadius = true
                 } else {
-                    sender.sendMessage(onlyPlayersCanUseRadius)
+                    onlyPlayersCanUseRadius.msg(sender)
                     return
                 }
             }
         }
 
-        if (sender is Player && players.size == 1 && !giveItemsToSender) {
-            sender.sendMessage(PlaceholderAPI.setPlaceholders(sender, onlyYouOnline))
-            return
-        }
+        if (!giveItemsToSender) players.remove(sender)
 
         if (players.isEmpty()) {
-            sender.sendMessage(noOneOnline)
+            noOneOnline.msg(sender)
             return
         }
 
         val amount = amt.toString().toIntOrNull()
         if (amount == null) {
-            sender.sendMessage(amountCannotBeZero)
+            amountCannotBeZero.msg(sender)
             return
         }
 
-        val mReceived = moneyReceived.replace("%amount%", amount.toString())
-        val mSent = when {
-            checkWorld -> {
-                moneySentWorld.replace("%amount%", amount.toString()).replace("%world%", argument.toString())
-            }
-            checkRadius -> {
-                moneySentRadius.replace("%amount%", amount.toString()).replace("%radius%", argument.toString())
-            }
-            else -> {
-                moneySent.replace("%amount%", amount.toString())
-            }
+        for (player in players) {
+            if (requirePermissionToGetItems && !player.hasPermission(giveAllReceivePermission)) continue
+            econ?.depositPlayer(player, amount.toDouble())
+            moneyReceived.replace("%amount%", amount.toString()).msg(player)
         }
 
-        for (p in players) {
-            if (requirePermissionToGetItems && !p.hasPermission(giveAllReceivePermission)) {
-                continue
+        when {
+            checkWorld -> {
+                moneySentWorld.replace("%amount%", amount.toString()).replace("%world%", argument.toString()).msg(sender)
             }
-            if (p == sender && giveItemsToSender) {
-                mainClass.econ?.depositPlayer(p, amount.toDouble())
-                p.sendMessage(PlaceholderAPI.setPlaceholders(p, mReceived))
-            } else if (p != sender) {
-                mainClass.econ?.depositPlayer(p, amount.toDouble())
-                p.sendMessage(PlaceholderAPI.setPlaceholders(p, mReceived))
+            checkRadius -> {
+                moneySentRadius.replace("%amount%", amount.toString()).replace("%radius%", argument.toString()).msg(sender)
+            }
+            else -> {
+                moneySent.replace("%amount%", amount.toString()).msg(sender)
             }
         }
-        sender.sendMessage(mSent)
+    }
+
+
+    @SubCommand("help")
+    fun giveAllHelp(sender: CommandSender) {
+        val giveAllHelpPermission = conf().getProperty(Config.giveAllHelpPermission)
+        val noPermission = conf().getProperty(Config.noPermission)
+
+        if (sender is Player && !sender.hasPermission(giveAllHelpPermission)) {
+            noPermission.msg(sender)
+            return
+        }
+
+        "&6GiveAll by BlitzGamer_88".msg(sender)
+        "".msg(sender)
+        "&e* &7/giveAll [material] <amount> &8-&f give items to all players".msg(sender)
+        "&e* &7/giveAll world [world] [material] <amount> &8-&f give items to all players from a world".msg(sender)
+        "&e* &7/giveAll radius [radius] [material] <amount> &8-&f give items to all players in a radius".msg(sender)
+        "&e* &7/giveAll money [amount] <world/radius> &8-&f give money to all players".msg(sender)
+        "&e* &7/giveAll hand <world/radius> &8-&f give the items you hold in your hand to all players".msg(sender)
+        "&e* &7/giveAll reload &8-&f reload the plugin".msg(sender)
+
     }
 
 
     @SubCommand("reload")
     fun giveAllReload(sender: CommandSender) {
-        val configReloaded = mainClass.conf().getProperty(Config.configReloaded).color()
-        val noPermission = mainClass.conf().getProperty(Config.noPermission).color()
+        val configReloaded = conf().getProperty(Config.configReloaded)
+        val noPermission = conf().getProperty(Config.noPermission)
 
-        val giveAllReloadPermission = mainClass.conf().getProperty(Config.giveAllReloadPermission)
+        val giveAllReloadPermission = conf().getProperty(Config.giveAllReloadPermission)
 
         if (sender is Player && !sender.hasPermission(giveAllReloadPermission)) {
-            sender.sendMessage(PlaceholderAPI.setPlaceholders(sender, noPermission))
+            noPermission.msg(sender)
             return
         }
 
-        mainClass.conf().reload()
-        sender.sendMessage(configReloaded)
+        conf().reload()
+        configReloaded.msg(sender)
     }
 }

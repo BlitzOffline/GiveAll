@@ -1,6 +1,6 @@
 name: GiveAll
-version: 0.0.2
+version: 0.0.3
 author: BlitzGamer_88
 main: me.blitzgamer_88.giveall.GiveAll
 api-version: 1.13
-softdepend: [PlaceholderAPI]
+softdepend: [PlaceholderAPI, Vault]
