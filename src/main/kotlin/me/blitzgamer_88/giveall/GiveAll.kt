@@ -1,11 +1,15 @@
 package me.blitzgamer_88.giveall
 
-import me.blitzgamer_88.giveall.cmd.CommandGiveAll
-import me.blitzgamer_88.giveall.util.loadConfig
-import me.blitzgamer_88.giveall.util.log
-import me.blitzgamer_88.giveall.util.setupEconomy
+import ch.jalu.configme.SettingsManager
+import me.blitzgamer_88.giveall.commands.CommandGiveAll
+import me.blitzgamer_88.giveall.config.GiveAllConfiguration
+import me.blitzgamer_88.giveall.util.*
 import me.bristermitten.pdm.PDMBuilder
+import me.mattstudios.mf.base.CommandBase
 import me.mattstudios.mf.base.CommandManager
+import me.mattstudios.mf.base.components.CompletionResolver
+import me.mattstudios.mf.base.components.MessageResolver
+import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.World
@@ -13,33 +17,60 @@ import org.bukkit.plugin.java.JavaPlugin
 
 
 class GiveAll : JavaPlugin() {
+    lateinit var econ: Economy
+    lateinit var conf: SettingsManager
+    private lateinit var commandManager: CommandManager
 
-    // TODO: GiveAll Inventory.
+    override fun onLoad() { PDMBuilder(this).build().loadAllDependencies().join() }
 
     override fun onEnable() {
-
-        PDMBuilder(this).build().loadAllDependencies().join()
-
         this.saveDefaultConfig()
 
-        loadConfig(this)
+        checkDepend("PlaceholderAPI")
+        checkDepend("Vault")
 
-        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
-            "&cCould not find PlaceholderAPI! This plugin is required".log()
+        setupEconomy()
+        loadConfig(this)
+        registerValues(this)
+
+        commandManager = CommandManager(this, true)
+        registerCommands(CommandGiveAll(this))
+        registerMessage("cmd.no.permission") { sender -> noPermission.msg(sender) }
+        registerMessage("cmd.wrong.usage") { sender -> wrongUsage.msg(sender) }
+
+        registerCompletion("#worlds") {Bukkit.getWorlds().map(World::getName)}
+        registerCompletion("#materials") {Material.values().map{it.name.toLowerCase().capitalize()}}
+
+        "[GiveAll] Plugin enabled successfully!".log()
+    }
+
+    private fun registerCommands(vararg commands: CommandBase) = commands.forEach(commandManager::register)
+    private fun registerCompletion(completionId: String, resolver: CompletionResolver) = commandManager.completionHandler.register(completionId, resolver)
+    private fun registerMessage(messageId: String, resolver: MessageResolver) = commandManager.messageHandler.register(messageId, resolver)
+
+    private fun checkDepend(plugin: String) {
+        if (Bukkit.getPluginManager().getPlugin(plugin) == null) {
+            "[GiveAll] Could not find $plugin! This plugin is required".log()
             Bukkit.getPluginManager().disablePlugin(this)
         }
-
-        if (!setupEconomy()) "&cCould not find Vault! Give Money function will not be enabled.".log()
-
-        val cmdManager = CommandManager(this, true)
-        cmdManager.completionHandler.register("#worlds") { Bukkit.getWorlds().map(World::getName) }
-        cmdManager.completionHandler.register("#materials") { Material.values().map { it.name.toLowerCase() } }
-        cmdManager.register(CommandGiveAll())
-
-        "&f[GiveAll]&3 Plugin enabled!".log()
     }
 
-    override fun onDisable() {
-        "&f[GiveAll]&d Plugin disabled!".log()
+    fun reload() {
+        conf.reload()
+        registerValues(this)
+        setupEconomy()
     }
+
+    private fun loadConfig(plugin: GiveAll) {
+        val file = plugin.dataFolder.resolve("config.yml")
+        if (!file.exists()) this.saveDefaultConfig()
+        conf = GiveAllConfiguration(file)
+    }
+
+    private fun setupEconomy() {
+        val rsp = Bukkit.getServer().servicesManager.getRegistration(Economy::class.java) ?: return
+        econ = rsp.provider
+    }
+
+    override fun onDisable() = "[GiveAll] Plugin disabled successfully!".log()
 }

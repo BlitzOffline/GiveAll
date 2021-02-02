@@ -1,39 +1,14 @@
 #     _____ _            ___  _ _
 #    |  __ (_)          / _ \| | |
-#    | |  \/___   _____/ /_\ \ | |
-#    | | __| \ \ / / _ \  _  | | |   -   BlitzGamer_88
+#    | |  \/___   _____/ /_\ \ | |   Made by:
+#    | | __| \ \ / / _ \  _  | | |   BlitzGamer_88
 #    | |_\ \ |\ V /  __/ | | | | |
 #     \____/_| \_/ \___\_| |_/_|_|
-
-
 
 # If you enable this, items will be given to the player that uses /giveall as well.
 giveItemsToSender: false
 # If you enable this, only players with the permission 'giveAllReceivePermission' will receive the items/money.
 requirePermissionToGetItems: false
-
-# You can customize the permissions that the plugin uses:
-
-# Permission to use all /giveall commands
-giveAllMainPermission: giveall.use.all
-# Permission to use /giveall
-giveAllPermission: giveall.use
-# Permission to use /giveall hand
-giveAllHandPermission: giveall.use.hand
-# Permission to use /giveall money
-giveAllMoneyPermission: giveall.use.money
-# Permission to use /giveall world
-giveAllWorldPermission: giveall.use.world
-# Permission to use /giveall radius
-giveAllRadiusPermission: giveall.use.radius
-# Permission to use /giveall reload
-giveAllReloadPermission: giveall.reload
-# Permission to use /giveall help
-giveAllHelpPermission: giveall.help
-# Permission to receive items/money when someone uses /giveall
-# This can be disabled in 'requirePermissionToGetItems'
-giveAllReceivePermission: giveall.receive
-
 
 
 # Customize the messages that are sent by the plugin:
