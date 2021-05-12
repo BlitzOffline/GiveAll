@@ -1,6 +1,9 @@
 package com.blitzoffline.giveall.command
 
 import com.blitzoffline.giveall.GiveAll
+import com.blitzoffline.giveall.config.holder.Messages
+import com.blitzoffline.giveall.config.messages
+import com.blitzoffline.giveall.config.settings
 import me.blitzgamer_88.giveall.util.*
 import me.clip.placeholderapi.PlaceholderAPI
 import me.mattstudios.mf.annotations.*
@@ -338,7 +341,8 @@ class CommandGiveAll(private val plugin: GiveAll) : CommandBase() {
     @SubCommand("reload")
     @Permission("giveall.reload", "giveall.use.all")
     fun giveAllReload(sender: CommandSender) {
-        plugin.reload()
-        configReloaded.msg(sender)
+        settings.reload()
+        messages.reload()
+        messages[Messages.CONFIG_RELOADED].msg(sender)
     }
 }

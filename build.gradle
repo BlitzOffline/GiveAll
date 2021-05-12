@@ -29,7 +29,8 @@ repositories {
 
 dependencies {
     implementation 'me.mattstudios.utils:matt-framework:1.4.6'
-    implementation 'me.mattstudios:triumph-config:1.0.5-SNAPSOHT'
+    implementation 'me.mattstudios:triumph-config:1.0.5-SNAPSHOT'
+    implementation 'net.kyori:adventure-platform-bukkit:4.0.0-SNAPSHOT'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
     compileOnly 'me.clip:placeholderapi:2.10.9'
@@ -42,5 +43,6 @@ shadowJar {
     relocate 'kotlin', 'com.blitzoffline.giveall.libs.kotlin'
     relocate 'me.mattstudios.mf', 'com.blitzoffline.giveall.libs.mf'
     relocate 'me.mattstudios.config', 'com.blitzoffline.giveall.libs.mfconf'
+    relocate 'net.kyori', 'com.blitzoffline.giveall.libs.kyori'
     archiveFileName.set("GiveAll-${project.version}.jar")
 }

@@ -1,48 +1,62 @@
 package com.blitzoffline.giveall
 
-import ch.jalu.configme.SettingsManager
 import com.blitzoffline.giveall.command.CommandGiveAll
-import com.blitzoffline.giveall.config.GiveAllConfiguration
-import me.blitzgamer_88.giveall.util.*
-import me.bristermitten.pdm.PDMBuilder
+import com.blitzoffline.giveall.config.holder.Messages
+import com.blitzoffline.giveall.config.holder.Settings
+import com.blitzoffline.giveall.config.loadConfig
+import com.blitzoffline.giveall.config.loadMessages
+import com.blitzoffline.giveall.config.messages
+import com.blitzoffline.giveall.config.settings
+import com.blitzoffline.giveall.config.setupEconomy
+import com.blitzoffline.giveall.util.adventure
+import com.blitzoffline.giveall.util.log
+import com.blitzoffline.giveall.util.msg
 import me.mattstudios.mf.base.CommandBase
 import me.mattstudios.mf.base.CommandManager
 import me.mattstudios.mf.base.components.CompletionResolver
 import me.mattstudios.mf.base.components.MessageResolver
-import net.milkbowl.vault.economy.Economy
+import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.plugin.java.JavaPlugin
 
-
 class GiveAll : JavaPlugin() {
-    lateinit var econ: Economy
-    lateinit var conf: SettingsManager
     private lateinit var commandManager: CommandManager
 
-    override fun onLoad() { PDMBuilder(this).build().loadAllDependencies().join() }
-
     override fun onEnable() {
-        this.saveDefaultConfig()
+        loadConfig(this)
+        loadMessages(this)
+
+        adventure = BukkitAudiences.create(this)
 
         checkDepend("PlaceholderAPI")
-        checkDepend("Vault")
-
-        setupEconomy()
-        loadConfig(this)
-        registerValues(this)
+        if (settings[Settings.HOOKS_VAULT]) checkDepend("Vault")
 
         commandManager = CommandManager(this, true)
-        registerCommands(CommandGiveAll(this))
-        registerMessage("cmd.no.permission") { sender -> noPermission.msg(sender) }
-        registerMessage("cmd.wrong.usage") { sender -> wrongUsage.msg(sender) }
+        registerCommands(
+            CommandGiveAll(this)
+        )
+        registerMessage("cmd.no.permission") { sender -> messages[Messages.NO_PERMISSION].msg(sender) }
+        registerMessage("cmd.wrong.usage") { sender -> messages[Messages.WRONG_USAGE].msg(sender) }
 
-        registerCompletion("#worlds") {Bukkit.getWorlds().map(World::getName)}
-        registerCompletion("#materials") {Material.values().map{it.name.toLowerCase().capitalize()}}
+        registerCompletion("#worlds") { Bukkit.getWorlds().map(World::getName) }
+        registerCompletion("#materials") {
+            Material.values()
+                .map { value ->
+                    value
+                        .name
+                        .lowercase()
+                        .replaceFirstChar { char ->
+                            if (char.isLowerCase()) char.titlecase() else it.toString()
+                        }
+                }
+        }
 
         "[GiveAll] Plugin enabled successfully!".log()
     }
+
+    override fun onDisable() = "[GiveAll] Plugin disabled successfully!".log()
 
     private fun registerCommands(vararg commands: CommandBase) = commands.forEach(commandManager::register)
     private fun registerCompletion(completionId: String, resolver: CompletionResolver) = commandManager.completionHandler.register(completionId, resolver)
@@ -53,24 +67,15 @@ class GiveAll : JavaPlugin() {
             "[GiveAll] Could not find $plugin! This plugin is required".log()
             Bukkit.getPluginManager().disablePlugin(this)
         }
+        if (plugin == "Vault" && !setupEconomy()) {
+            "[GiveAll] Something went wrong while setting up the economy".log()
+            pluginLoader
+            Bukkit.getPluginManager().disablePlugin(this)
+        }
     }
 
-    fun reload() {
-        conf.reload()
-        registerValues(this)
-        setupEconomy()
+    fun saveDefaultMessages() {
+        if (dataFolder.resolve("messages.yml").exists()) return
+        saveResource("messages.yml", false)
     }
-
-    private fun loadConfig(plugin: GiveAll) {
-        val file = plugin.dataFolder.resolve("config.yml")
-        if (!file.exists()) this.saveDefaultConfig()
-        conf = GiveAllConfiguration(file)
-    }
-
-    private fun setupEconomy() {
-        val rsp = Bukkit.getServer().servicesManager.getRegistration(Economy::class.java) ?: return
-        econ = rsp.provider
-    }
-
-    override fun onDisable() = "[GiveAll] Plugin disabled successfully!".log()
 }
