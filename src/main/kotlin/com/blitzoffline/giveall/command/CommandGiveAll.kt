@@ -1,6 +1,6 @@
-package me.blitzgamer_88.giveall.commands
+package com.blitzoffline.giveall.command
 
-import me.blitzgamer_88.giveall.GiveAll
+import com.blitzoffline.giveall.GiveAll
 import me.blitzgamer_88.giveall.util.*
 import me.clip.placeholderapi.PlaceholderAPI
 import me.mattstudios.mf.annotations.*

@@ -1,19 +1,12 @@
-plugins {
-    id "me.bristermitten.pdm" version "0.0.28"
-    id "org.jetbrains.kotlin.jvm" version "1.4.20"
-}
-
-group "me.blitzgamer_88.giveall"
-version "0.0.4"
-
-repositories {
-    mavenCentral()
-    maven { url = "https://jitpack.io" }
-    maven { url = "https://papermc.io/repo/repository/maven-public/" }
-    maven { url = "https://repo.extendedclip.com/content/repositories/placeholderapi/" }
-}
-
 import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.5.0'
+}
+
+group 'com.blitzoffline'
+version '0.0.5'
 
 processResources {
     from(sourceSets.main.resources.srcDirs) {
@@ -21,16 +14,33 @@ processResources {
     }
 }
 
-dependencies {
-    pdm "me.mattstudios.utils:matt-framework:1.4"
-    pdm "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    pdm "ch.jalu:configme:1.2.0"
-
-    compileOnly "org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT"
-    compileOnly "me.clip:placeholderapi:2.10.9"
-    compileOnly "com.github.MilkBowl:VaultAPI:1.7"
-
-    testCompile group: "junit", name: "junit", version: "4.12"
+compileKotlin {
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_11
+    kotlinOptions.javaParameters = true
 }
 
-jar.dependsOn project.tasks.getByName("pdm")
+repositories {
+    mavenCentral()
+    maven { url = 'https://jitpack.io' }
+    maven { url = 'https://repo.mattstudios.me/artifactory/public' }
+    maven { url = 'https://papermc.io/repo/repository/maven-public/' }
+    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+}
+
+dependencies {
+    implementation 'me.mattstudios.utils:matt-framework:1.4.6'
+    implementation 'me.mattstudios:triumph-config:1.0.5-SNAPSOHT'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+
+    compileOnly 'me.clip:placeholderapi:2.10.9'
+    compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
+    compileOnly 'com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT'
+}
+
+shadowJar {
+    minimize()
+    relocate 'kotlin', 'com.blitzoffline.giveall.libs.kotlin'
+    relocate 'me.mattstudios.mf', 'com.blitzoffline.giveall.libs.mf'
+    relocate 'me.mattstudios.config', 'com.blitzoffline.giveall.libs.mfconf'
+    archiveFileName.set("GiveAll-${project.version}.jar")
+}

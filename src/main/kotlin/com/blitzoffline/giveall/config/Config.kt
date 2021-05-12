@@ -1,4 +1,4 @@
-package me.blitzgamer_88.giveall.config
+package com.blitzoffline.giveall.config
 
 import ch.jalu.configme.Comment
 import ch.jalu.configme.SettingsHolder
