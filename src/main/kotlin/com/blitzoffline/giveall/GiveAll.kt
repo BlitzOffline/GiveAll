@@ -1,6 +1,12 @@
 package com.blitzoffline.giveall
 
-import com.blitzoffline.giveall.command.CommandGiveAll
+import com.blitzoffline.giveall.command.CommandHand
+import com.blitzoffline.giveall.command.CommandHelp
+import com.blitzoffline.giveall.command.CommandItem
+import com.blitzoffline.giveall.command.CommandMoney
+import com.blitzoffline.giveall.command.CommandRadius
+import com.blitzoffline.giveall.command.CommandReload
+import com.blitzoffline.giveall.command.CommandWorld
 import com.blitzoffline.giveall.config.holder.Messages
 import com.blitzoffline.giveall.config.holder.Settings
 import com.blitzoffline.giveall.config.loadConfig
@@ -25,34 +31,35 @@ class GiveAll : JavaPlugin() {
     private lateinit var commandManager: CommandManager
 
     override fun onEnable() {
+        adventure = BukkitAudiences.create(this)
+
         loadConfig(this)
         loadMessages(this)
-
-        adventure = BukkitAudiences.create(this)
 
         checkDepend("PlaceholderAPI")
         if (settings[Settings.HOOKS_VAULT]) checkDepend("Vault")
 
         commandManager = CommandManager(this, true)
         registerCommands(
-            CommandGiveAll(this)
+            CommandHand(),
+            CommandHelp(),
+            CommandItem(),
+            CommandMoney(),
+            CommandRadius(),
+            CommandReload(),
+            CommandWorld()
         )
         registerMessage("cmd.no.permission") { sender -> messages[Messages.NO_PERMISSION].msg(sender) }
         registerMessage("cmd.wrong.usage") { sender -> messages[Messages.WRONG_USAGE].msg(sender) }
 
         registerCompletion("#worlds") { Bukkit.getWorlds().map(World::getName) }
         registerCompletion("#materials") {
-            Material.values()
-                .map { value ->
-                    value
-                        .name
-                        .lowercase()
-                        .replaceFirstChar { char ->
-                            if (char.isLowerCase()) char.titlecase() else it.toString()
-                        }
-                }
+            Material.values().map { value -> value
+                .name
+                .lowercase()
+                .replaceFirstChar { char -> if (char.isLowerCase()) char.titlecase() else it.toString() }
+            }
         }
-
         "[GiveAll] Plugin enabled successfully!".log()
     }
 
