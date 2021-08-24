@@ -24,7 +24,14 @@ class CommandRadius(plugin: GiveAll) : CommandBase() {
 
     @SubCommand("radius")
     @Permission("giveall.use.radius")
-    fun radius(sender: Player, radius: Double, @Completion("#materials") material: Material, @Optional amt: String?) {
+    fun radius(sender: Player, rad: String?, @Completion("#materials") material: Material, @Optional amt: String?) {
+        if (rad == null || rad.toDoubleOrNull() == null) {
+            messages[Messages.WRONG_USAGE].msg(sender)
+            return
+        }
+
+        val radius = rad.toDouble()
+
         if (amt != null && amt.toIntOrNull() == null) {
             messages[Messages.WRONG_USAGE].msg(sender)
             return
