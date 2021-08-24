@@ -15,7 +15,7 @@ class CommandHelp : CommandBase() {
     @Permission("giveall.help")
     fun help(sender: CommandSender) {
         "".msg(sender)
-        "&7---- &6GiveAll by BlitzGamer_88 &7----".msg(sender)
+        "&7---- &6GiveAll by BlitzOffline &7----".msg(sender)
         "".msg(sender)
         "&7/giveAll <material> [amount] &8-&f give items to all players".msg(sender)
         "&7/giveAll world <world> <material> [amount] &8-&f give items to all players from a world".msg(sender)
