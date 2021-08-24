@@ -12,6 +12,7 @@ import me.mattstudios.mf.annotations.Optional
 import me.mattstudios.mf.annotations.Permission
 import me.mattstudios.mf.annotations.SubCommand
 import me.mattstudios.mf.base.CommandBase
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.command.CommandSender
@@ -26,35 +27,41 @@ class CommandWorld(plugin: GiveAll) : CommandBase() {
 
     @SubCommand("world")
     @Permission("giveall.use.world")
-    fun world(sender: CommandSender, @Completion("#worlds") world: World, @Completion("#materials") material: Material, @Optional amt: String?) {
+    fun world(sender: CommandSender, @Completion("#worlds") worldName: String, @Completion("#materials") material: Material, @Optional amt: String?) {
+        val world = Bukkit.getWorld(worldName) ?: run {
+            messages[Messages.WORLD_NAME_WRONG].msg(sender)
+            return
+        }
+
         val players = world.players
         if (players.isEmpty()) {
             messages[Messages.NO_ONE_ONLINE].msg(sender)
             return
         }
 
-        if (sender is Player && sender.world == world && players.size == 1 && !settings[Settings.REQUIRES_PERMISSION]) {
+        if (sender is Player && sender.world == world && players.size == 1 && !settings[Settings.GIVE_REWARDS_TO_SENDER]) {
             messages[Messages.ONLY_YOU_ONLINE].msg(sender)
             return
         }
-
-        if (sender is Player && players.contains(sender) && !settings[Settings.GIVE_REWARDS_TO_SENDER]) players.remove(sender)
 
         val amount = if (amt?.toIntOrNull() != null) amt.toInt() else material.maxStackSize
         val item = ItemStack(material, amount)
 
         for (player in players) {
+            if (!settings[Settings.GIVE_REWARDS_TO_SENDER] && player == sender) continue
             if (settings[Settings.REQUIRES_PERMISSION] && !player.hasPermission("giveall.receive")) continue
             player.inventory.addItem(item)
             messages[Messages.ITEMS_RECEIVED]
                 .replace("%amount%", amount.toString())
                 .replace("%material%", material.name.lowercase())
                 .msg(player)
-            if (player.inventory.firstEmpty() != -1)  player.sendMessage(PlaceholderAPI.setPlaceholders(player, messages[Messages.INVENTORY_FULL]))
+            if (player.inventory.firstEmpty() == -1) messages[Messages.INVENTORY_FULL].msg(player)
         }
+
         messages[Messages.ITEMS_SENT]
             .replace("%amount%", amount.toString())
             .replace("%material%", material.name.lowercase())
-            .replace("%world%", world.name).msg(sender)
+            .replace("%world%", world.name)
+            .msg(sender)
     }
 }

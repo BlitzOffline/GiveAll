@@ -25,17 +25,16 @@ class CommandHand(plugin: GiveAll) : CommandBase() {
     @SubCommand("hand")
     @Permission("giveall.use.hand")
     fun giveAllHand(sender: Player, @Completion("#worlds") @Optional argument: String?) {
-        if (argument != null && argument.contains(" ")) {
+        if (argument != null && argument.toDoubleOrNull() == null && Bukkit.getWorld(argument) == null) {
             messages[Messages.WRONG_USAGE].msg(sender)
             return
         }
 
         var checkWorld = false
         var checkRadius = false
-
-        val players: MutableCollection<out Player>
+        val players: List<Player>
         when {
-            argument == null -> players = Bukkit.getServer().onlinePlayers
+            argument == null -> players = Bukkit.getServer().onlinePlayers.toList()
             argument.toDoubleOrNull() != null -> {
                 checkRadius = true
                 val location = sender.location
@@ -49,13 +48,11 @@ class CommandHand(plugin: GiveAll) : CommandBase() {
                     location.y + radius,
                     location.z + hypotenuse
                 )
-                players = sender.world.getNearbyEntities(boundingBox)
-                    .filterIsInstance(Player::class.java).toMutableList()
+                players = sender.world.getNearbyEntities(boundingBox).filterIsInstance<Player>().toList()
             }
             else -> {
                 checkWorld = true
-                val world = Bukkit.getServer().getWorld(argument)
-                if (world == null) {
+                val world = Bukkit.getServer().getWorld(argument) ?: run {
                     messages[Messages.WORLD_NAME_WRONG].msg(sender)
                     return
                 }
@@ -63,10 +60,13 @@ class CommandHand(plugin: GiveAll) : CommandBase() {
             }
         }
 
-        if (!settings[Settings.GIVE_REWARDS_TO_SENDER]) players.remove(sender)
-
         if (players.isEmpty()) {
             messages[Messages.NO_ONE_ONLINE].msg(sender)
+            return
+        }
+
+        if (!settings[Settings.GIVE_REWARDS_TO_SENDER] && players.contains(sender) && players.size == 1) {
+            messages[Messages.ONLY_YOU_ONLINE].msg(sender)
             return
         }
 
@@ -78,6 +78,7 @@ class CommandHand(plugin: GiveAll) : CommandBase() {
         }
 
         for (player in players) {
+            if (!settings[Settings.GIVE_REWARDS_TO_SENDER] && player == sender) continue
             if (settings[Settings.REQUIRES_PERMISSION] && !player.hasPermission("giveall.receive")) continue
             player.inventory.addItem(item.clone())
             messages[Messages.ITEMS_RECEIVED]

@@ -21,6 +21,11 @@ class CommandItem(plugin: GiveAll) : CommandBase() {
     @Default
     @Permission("giveall.use")
     fun item(sender: CommandSender, @Completion("#materials") material: Material, @Optional amt: String?) {
+        if (amt != null && amt.toIntOrNull() == null) {
+            messages[Messages.WRONG_USAGE].msg(sender)
+            return
+        }
+
         val players = getServer().onlinePlayers
         if (players.isEmpty()) {
             messages[Messages.NO_ONE_ONLINE].msg(sender)
@@ -32,19 +37,11 @@ class CommandItem(plugin: GiveAll) : CommandBase() {
             return
         }
 
-        if (sender is Player && !settings[Settings.GIVE_REWARDS_TO_SENDER]) {
-            players.remove(sender)
-        }
-
-        if (amt != null && amt.toIntOrNull() == null) {
-            messages[Messages.WRONG_USAGE].msg(sender)
-            return
-        }
-
         val amount = if (amt?.toIntOrNull() != null) amt.toInt() else material.maxStackSize
         val item = ItemStack(material, amount)
 
         for (player in players) {
+            if (!settings[Settings.GIVE_REWARDS_TO_SENDER] && player == sender) continue
             if (settings[Settings.REQUIRES_PERMISSION] && !player.hasPermission("giveall.receive")) continue
             player.inventory.addItem(item)
             messages[Messages.ITEMS_RECEIVED]

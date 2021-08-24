@@ -25,6 +25,11 @@ class CommandRadius(plugin: GiveAll) : CommandBase() {
     @SubCommand("radius")
     @Permission("giveall.use.radius")
     fun radius(sender: Player, radius: Double, @Completion("#materials") material: Material, @Optional amt: String?) {
+        if (amt != null && amt.toIntOrNull() == null) {
+            messages[Messages.WRONG_USAGE].msg(sender)
+            return
+        }
+
         val location = sender.location
         val hypotenuse = kotlin.math.sqrt(2 * radius * radius)
         val boundingBox = BoundingBox(
@@ -37,7 +42,7 @@ class CommandRadius(plugin: GiveAll) : CommandBase() {
 
         val players= sender.world.getNearbyEntities(boundingBox)
             .filterIsInstance(Player::class.java)
-            .toMutableList()
+            .toList()
 
         if (players.isEmpty()) {
             messages[Messages.NO_ONE_ONLINE].msg(sender)
@@ -49,12 +54,11 @@ class CommandRadius(plugin: GiveAll) : CommandBase() {
             return
         }
 
-        if (!settings[Settings.GIVE_REWARDS_TO_SENDER]) players.remove(sender)
-
         val amount = if (amt?.toIntOrNull() != null) amt.toInt() else material.maxStackSize
         val item = ItemStack(material, amount)
 
         for (player in players) {
+            if (!settings[Settings.GIVE_REWARDS_TO_SENDER] && player == sender) continue
             if (settings[Settings.REQUIRES_PERMISSION] && !player.hasPermission("giveall.receive")) continue
             player.inventory.addItem(item)
             messages[Messages.ITEMS_RECEIVED]
@@ -63,9 +67,11 @@ class CommandRadius(plugin: GiveAll) : CommandBase() {
                 .msg(player)
             if (player.inventory.firstEmpty() == -1) messages[Messages.INVENTORY_FULL].msg(player)
         }
+
         messages[Messages.ITEMS_SENT]
             .replace("%amount%", amount.toString())
             .replace("%material%", material.name.lowercase())
-            .replace("%radius%", radius.toInt().toString()).msg(sender)
+            .replace("%radius%", radius.toInt().toString())
+            .msg(sender)
     }
 }

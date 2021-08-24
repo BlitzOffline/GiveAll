@@ -25,7 +25,12 @@ class CommandMoney(private val plugin: GiveAll) : CommandBase() {
     @SubCommand("money")
     @Permission("giveall.use.money")
     fun money(sender: CommandSender, amount: Int?, @Completion("#worlds") @Optional argument: String?) {
-        if (argument != null && argument.contains(" ")) {
+        if (amount == null || amount <= 0) {
+            messages[Messages.AMOUNT_ZERO].msg(sender)
+            return
+        }
+
+        if (argument != null && argument.toDoubleOrNull() == null && Bukkit.getWorld(argument) == null) {
             messages[Messages.WRONG_USAGE].msg(sender)
             return
         }
@@ -37,10 +42,9 @@ class CommandMoney(private val plugin: GiveAll) : CommandBase() {
 
         var checkWorld = false
         var checkRadius = false
-
-        val players: MutableCollection<out Player>
+        val players: List<Player>
         when {
-            argument == null -> players = Bukkit.getServer().onlinePlayers
+            argument == null -> players = Bukkit.getServer().onlinePlayers.toList()
             argument.toDoubleOrNull() != null -> {
                 if (sender !is Player) return
                 checkRadius = true
@@ -56,11 +60,10 @@ class CommandMoney(private val plugin: GiveAll) : CommandBase() {
                     location.z + hypotenuse
                 )
                 players = sender.world.getNearbyEntities(boundingBox)
-                    .filterIsInstance(Player::class.java).toMutableList()
+                    .filterIsInstance(Player::class.java).toList()
             }
             else -> {
-                val world = Bukkit.getServer().getWorld(argument)
-                if (world == null) {
+                val world = Bukkit.getServer().getWorld(argument) ?: run {
                     messages[Messages.WORLD_NAME_WRONG].msg(sender)
                     return
                 }
@@ -69,19 +72,18 @@ class CommandMoney(private val plugin: GiveAll) : CommandBase() {
             }
         }
 
-        if (!settings[Settings.GIVE_REWARDS_TO_SENDER]) players.remove(sender as Player)
-
         if (players.isEmpty()) {
             messages[Messages.NO_ONE_ONLINE].msg(sender)
             return
         }
 
-        if (amount == null || amount <= 0) {
-            messages[Messages.AMOUNT_ZERO].msg(sender)
+        if (!settings[Settings.GIVE_REWARDS_TO_SENDER] && players.contains(sender) && players.size == 1) {
+            messages[Messages.ONLY_YOU_ONLINE].msg(sender)
             return
         }
 
         for (player in players) {
+            if (!settings[Settings.GIVE_REWARDS_TO_SENDER] && player == sender) continue
             if (settings[Settings.REQUIRES_PERMISSION] && !player.hasPermission("giveall.receive")) continue
             plugin.econ.depositPlayer(player, amount.toDouble())
             messages[Messages.MONEY_RECEIVED]
