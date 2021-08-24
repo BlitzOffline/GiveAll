@@ -1,9 +1,8 @@
 package com.blitzoffline.giveall.command
 
+import com.blitzoffline.giveall.GiveAll
 import com.blitzoffline.giveall.config.holder.Messages
 import com.blitzoffline.giveall.config.holder.Settings
-import com.blitzoffline.giveall.config.messages
-import com.blitzoffline.giveall.config.settings
 import com.blitzoffline.giveall.util.msg
 import me.mattstudios.mf.annotations.*
 import me.mattstudios.mf.base.CommandBase
@@ -15,9 +14,12 @@ import org.bukkit.inventory.ItemStack
 
 @Alias("gall")
 @Command("giveall")
-class CommandItem : CommandBase() {
+class CommandItem(plugin: GiveAll) : CommandBase() {
+    private val settings = plugin.settings
+    private val messages = plugin.messages
+
     @Default
-    @Permission("giveall.use", "giveall.use.all")
+    @Permission("giveall.use")
     fun item(sender: CommandSender, @Completion("#materials") material: Material, @Optional amt: String?) {
         val players = getServer().onlinePlayers
         if (players.isEmpty()) {

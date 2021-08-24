@@ -7,48 +7,75 @@ import com.blitzoffline.giveall.command.CommandMoney
 import com.blitzoffline.giveall.command.CommandRadius
 import com.blitzoffline.giveall.command.CommandReload
 import com.blitzoffline.giveall.command.CommandWorld
+import com.blitzoffline.giveall.config.ConfigHandler
 import com.blitzoffline.giveall.config.holder.Messages
 import com.blitzoffline.giveall.config.holder.Settings
-import com.blitzoffline.giveall.config.loadConfig
-import com.blitzoffline.giveall.config.loadMessages
-import com.blitzoffline.giveall.config.messages
-import com.blitzoffline.giveall.config.settings
-import com.blitzoffline.giveall.config.setupEconomy
 import com.blitzoffline.giveall.util.adventure
-import com.blitzoffline.giveall.util.log
 import com.blitzoffline.giveall.util.msg
+import me.mattstudios.config.SettingsManager
 import me.mattstudios.mf.base.CommandBase
 import me.mattstudios.mf.base.CommandManager
 import me.mattstudios.mf.base.components.CompletionResolver
 import me.mattstudios.mf.base.components.MessageResolver
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
+import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.plugin.java.JavaPlugin
 
 class GiveAll : JavaPlugin() {
+    lateinit var settings: SettingsManager
+        private set
+    lateinit var messages: SettingsManager
+        private set
+    lateinit var econ: Economy
+        private set
+    private var hooked = false
+
     private lateinit var commandManager: CommandManager
+    private lateinit var configHandler: ConfigHandler
 
     override fun onEnable() {
         adventure = BukkitAudiences.create(this)
 
-        loadConfig(this)
-        loadMessages(this)
+        configHandler = ConfigHandler(this)
 
-        checkDepend("PlaceholderAPI")
-        if (settings[Settings.HOOKS_VAULT]) checkDepend("Vault")
+        settings = configHandler.fetchSettings()
+        messages = configHandler.fetchMessages()
+
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
+            logger.warning("Could not find PlaceholderAPI! This plugin is required!")
+            pluginLoader.disablePlugin(this)
+        }
+        if (settings[Settings.HOOKS_VAULT]) {
+            if (Bukkit.getPluginManager().getPlugin("Vault") == null) {
+                logger.warning("Could not find Vault! This plugin is required!")
+                pluginLoader.disablePlugin(this)
+            }
+            econ = configHandler.fetchEconomy() ?: run {
+                logger.warning("Could not find Vault! This plugin is required!")
+                pluginLoader.disablePlugin(this)
+                return
+            }
+            hooked = true
+        }
 
         commandManager = CommandManager(this, true)
         registerCommands(
-            CommandHand(),
+            CommandHand(this),
             CommandHelp(),
-            CommandItem(),
-            CommandMoney(),
-            CommandRadius(),
-            CommandReload(),
-            CommandWorld()
+            CommandItem(this),
+            CommandRadius(this),
+            CommandReload(this),
+            CommandWorld(this)
         )
+        if (hooked) {
+            registerCommands(
+                CommandMoney(this)
+            )
+        }
+
         registerMessage("cmd.no.permission") { sender -> messages[Messages.NO_PERMISSION].msg(sender) }
         registerMessage("cmd.wrong.usage") { sender -> messages[Messages.WRONG_USAGE].msg(sender) }
 
@@ -60,26 +87,14 @@ class GiveAll : JavaPlugin() {
                 .replaceFirstChar { char -> if (char.isLowerCase()) char.titlecase() else it.toString() }
             }
         }
-        "[GiveAll] Plugin enabled successfully!".log()
+        logger.info("Plugin enabled successfully!")
     }
 
-    override fun onDisable() = "[GiveAll] Plugin disabled successfully!".log()
+    override fun onDisable() = logger.info("Plugin disabled successfully!")
 
     private fun registerCommands(vararg commands: CommandBase) = commands.forEach(commandManager::register)
     private fun registerCompletion(completionId: String, resolver: CompletionResolver) = commandManager.completionHandler.register(completionId, resolver)
     private fun registerMessage(messageId: String, resolver: MessageResolver) = commandManager.messageHandler.register(messageId, resolver)
-
-    private fun checkDepend(plugin: String) {
-        if (Bukkit.getPluginManager().getPlugin(plugin) == null) {
-            "[GiveAll] Could not find $plugin! This plugin is required".log()
-            Bukkit.getPluginManager().disablePlugin(this)
-        }
-        if (plugin == "Vault" && !setupEconomy()) {
-            "[GiveAll] Something went wrong while setting up the economy".log()
-            pluginLoader
-            Bukkit.getPluginManager().disablePlugin(this)
-        }
-    }
 
     fun saveDefaultMessages() {
         if (dataFolder.resolve("messages.yml").exists()) return

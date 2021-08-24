@@ -1,10 +1,8 @@
 package com.blitzoffline.giveall.command
 
-import com.blitzoffline.giveall.config.econ
+import com.blitzoffline.giveall.GiveAll
 import com.blitzoffline.giveall.config.holder.Messages
 import com.blitzoffline.giveall.config.holder.Settings
-import com.blitzoffline.giveall.config.messages
-import com.blitzoffline.giveall.config.settings
 import com.blitzoffline.giveall.util.msg
 import me.mattstudios.mf.annotations.Alias
 import me.mattstudios.mf.annotations.Command
@@ -20,7 +18,10 @@ import org.bukkit.util.BoundingBox
 
 @Alias("gall")
 @Command("giveall")
-class CommandMoney : CommandBase() {
+class CommandMoney(private val plugin: GiveAll) : CommandBase() {
+    private val settings = plugin.settings
+    private val messages = plugin.messages
+
     @SubCommand("money")
     @Permission("giveall.use.money")
     fun money(sender: CommandSender, amount: Int?, @Completion("#worlds") @Optional argument: String?) {
@@ -82,7 +83,7 @@ class CommandMoney : CommandBase() {
 
         for (player in players) {
             if (settings[Settings.REQUIRES_PERMISSION] && !player.hasPermission("giveall.receive")) continue
-            econ.depositPlayer(player, amount.toDouble())
+            plugin.econ.depositPlayer(player, amount.toDouble())
             messages[Messages.MONEY_RECEIVED]
                 .replace("%amount%", amount.toString())
                 .msg(player)

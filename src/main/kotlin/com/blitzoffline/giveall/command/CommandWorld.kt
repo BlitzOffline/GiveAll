@@ -1,9 +1,8 @@
 package com.blitzoffline.giveall.command
 
+import com.blitzoffline.giveall.GiveAll
 import com.blitzoffline.giveall.config.holder.Messages
 import com.blitzoffline.giveall.config.holder.Settings
-import com.blitzoffline.giveall.config.messages
-import com.blitzoffline.giveall.config.settings
 import com.blitzoffline.giveall.util.msg
 import me.clip.placeholderapi.PlaceholderAPI
 import me.mattstudios.mf.annotations.Alias
@@ -21,7 +20,10 @@ import org.bukkit.inventory.ItemStack
 
 @Alias("gall")
 @Command("giveall")
-class CommandWorld : CommandBase() {
+class CommandWorld(plugin: GiveAll) : CommandBase() {
+    private val settings = plugin.settings
+    private val messages = plugin.messages
+
     @SubCommand("world")
     @Permission("giveall.use.world")
     fun world(sender: CommandSender, @Completion("#worlds") world: World, @Completion("#materials") material: Material, @Optional amt: String?) {

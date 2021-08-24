@@ -9,12 +9,11 @@ group 'com.blitzoffline'
 version '0.0.5'
 
 processResources {
-    from(sourceSets.main.resources.srcDirs) {
-        filter ReplaceTokens, tokens: [version: version]
-    }
+    filter ReplaceTokens, tokens: [version: version]
 }
 
 compileKotlin {
+    processResources.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     kotlinOptions.jvmTarget = JavaVersion.VERSION_11
     kotlinOptions.javaParameters = true
 }
@@ -41,8 +40,8 @@ dependencies {
 shadowJar {
     minimize()
     relocate 'kotlin', 'com.blitzoffline.giveall.libs.kotlin'
-    relocate 'me.mattstudios.mf', 'com.blitzoffline.giveall.libs.mf'
-    relocate 'me.mattstudios.config', 'com.blitzoffline.giveall.libs.mfconf'
-    relocate 'net.kyori', 'com.blitzoffline.giveall.libs.kyori'
+    relocate 'me.mattstudios.mf', 'com.blitzoffline.giveall.libs.commands'
+    relocate 'me.mattstudios.config', 'com.blitzoffline.giveall.libs.config'
+    relocate 'net.kyori', 'com.blitzoffline.giveall.libs.adventure'
     archiveFileName.set("GiveAll-${project.version}.jar")
 }

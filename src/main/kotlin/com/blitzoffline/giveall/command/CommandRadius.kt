@@ -1,9 +1,8 @@
 package com.blitzoffline.giveall.command
 
+import com.blitzoffline.giveall.GiveAll
 import com.blitzoffline.giveall.config.holder.Messages
 import com.blitzoffline.giveall.config.holder.Settings
-import com.blitzoffline.giveall.config.messages
-import com.blitzoffline.giveall.config.settings
 import com.blitzoffline.giveall.util.msg
 import me.mattstudios.mf.annotations.Alias
 import me.mattstudios.mf.annotations.Command
@@ -19,9 +18,12 @@ import org.bukkit.util.BoundingBox
 
 @Alias("gall")
 @Command("giveall")
-class CommandRadius : CommandBase() {
+class CommandRadius(plugin: GiveAll) : CommandBase() {
+    private val settings = plugin.settings
+    private val messages = plugin.messages
+
     @SubCommand("radius")
-    @Permission("giveall.use.radius", "giveall.use.all")
+    @Permission("giveall.use.radius")
     fun radius(sender: Player, radius: Double, @Completion("#materials") material: Material, @Optional amt: String?) {
         val location = sender.location
         val hypotenuse = kotlin.math.sqrt(2 * radius * radius)
