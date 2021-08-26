@@ -25,21 +25,26 @@ class CommandItem(plugin: GiveAll) : CommandBase() {
 
     @Default
     @Permission("giveall.use")
-    fun item(sender: CommandSender, @Completion("#materials") material: Material?, @Optional amt: Int?) {
-        if (material == null && amt == null) {
-            "&7---- &6GiveAll by BlitzOffline &7----".msg(sender)
-            "".msg(sender)
-            "&7/giveall help &8-&f show this help menu".msg(sender)
-            "&7/giveall reload &8-&f reload the configuration".msg(sender)
-            "&7/giveall <material> [amount] &8-&f give items to all players".msg(sender)
-            "&7/giveall world <world> <material> [amount] &8-&f give items to all players in a world".msg(sender)
-            "&7/giveall radius <radius> <material> [amount] &8-&f give items to all players in a radius".msg(sender)
-            "&7/giveall hand [world/radius] &8-&f give the items you hold in your hand to all players".msg(sender)
-            "&7/giveall money <amount> [world/radius] &8-&f give money to all players".msg(sender)
+    @Completion("#materials")
+    fun item(sender: CommandSender, @Optional args: Array<String>) {
+        if (args.isEmpty()) {
+            if (sender.hasPermission("giveall.help")) {
+                "&7---- &6GiveAll by BlitzOffline &7----".msg(sender)
+                "".msg(sender)
+                "&7/giveall help &8-&f show this help menu".msg(sender)
+                "&7/giveall reload &8-&f reload the configuration".msg(sender)
+                "&7/giveall <material> [amount] &8-&f give items to all players".msg(sender)
+                "&7/giveall world <world> <material> [amount] &8-&f give items to all players in a world".msg(sender)
+                "&7/giveall radius <radius> <material> [amount] &8-&f give items to all players in a radius".msg(sender)
+                "&7/giveall hand [world/radius] &8-&f give the items you hold in your hand to all players".msg(sender)
+                "&7/giveall money <amount> [world/radius] &8-&f give money to all players".msg(sender)
+            } else {
+                messages[Messages.WRONG_USAGE].msg(sender)
+            }
             return
         }
 
-        if (material == null) {
+        val material = Material.matchMaterial(args[0].uppercase()) ?: run {
             messages[Messages.WRONG_MATERIAL].msg(sender)
             return
         }
@@ -55,7 +60,7 @@ class CommandItem(plugin: GiveAll) : CommandBase() {
             return
         }
 
-        val amount = amt ?: material.maxStackSize
+        val amount = if (args.size >= 2 && args[1].toIntOrNull() != null) args[1].toInt() else material.maxStackSize
         val item = ItemStack(material, amount)
 
         for (player in players) {
