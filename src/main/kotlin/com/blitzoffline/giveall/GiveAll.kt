@@ -65,7 +65,7 @@ class GiveAll : JavaPlugin() {
         registerMessage("cmd.no.permission") { sender -> messages[Messages.NO_PERMISSION].msg(sender) }
         registerMessage("cmd.wrong.usage") { sender -> messages[Messages.WRONG_USAGE].msg(sender) }
 
-        registerCompletion("#world") { Bukkit.getWorlds().map(World::getName) }
+        registerCompletion("#worlds") { Bukkit.getWorlds().map(World::getName) }
         registerCompletion("#materials") { Material.values().map { material -> material.name.lowercase() } }
 
         registerCommands(

@@ -12,7 +12,7 @@ NO-ONE-ONLINE: '&7Could not find any players online.'
 ONLY-YOU-ONLINE: '&7You are the only player we could find.'
 
 WRONG-USAGE: '&cWrong usage! Use: &e/giveall help&c to get help'
-NO-PREMISSION: '&cError: &7You don''t have permission to do that!'
+NO-PERMISSION: '&cError: &7You don''t have permission to do that!'
 CONFIG-RELOADED: '&7Config reloaded successfully.'
 
 # Only messages where you can use the custom placeholders: %amount%, %material%, %radius% and %world%
