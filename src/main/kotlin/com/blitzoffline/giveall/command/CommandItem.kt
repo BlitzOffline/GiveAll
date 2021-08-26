@@ -20,7 +20,12 @@ class CommandItem(plugin: GiveAll) : CommandBase() {
 
     @Default
     @Permission("giveall.use")
-    fun item(sender: CommandSender, @Completion("#materials") material: Material, @Optional amt: String?) {
+    fun item(sender: CommandSender, @Completion("#materials") material: Material?, @Optional amt: String?) {
+        if (material == null) {
+            messages[Messages.WRONG_USAGE].msg(sender)
+            return
+        }
+
         if (amt != null && amt.toIntOrNull() == null) {
             messages[Messages.WRONG_USAGE].msg(sender)
             return

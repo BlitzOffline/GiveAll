@@ -27,8 +27,8 @@ class CommandWorld(plugin: GiveAll) : CommandBase() {
 
     @SubCommand("world")
     @Permission("giveall.use.world")
-    fun world(sender: CommandSender, @Completion("#worlds") worldName: String, @Completion("#materials") material: Material, @Optional amt: String?) {
-        val world = Bukkit.getWorld(worldName) ?: run {
+    fun world(sender: CommandSender, @Completion("#worlds") world: World?, @Completion("#materials") material: Material, @Optional amt: Int?) {
+        if (world == null) {
             messages[Messages.WORLD_NAME_WRONG].msg(sender)
             return
         }
@@ -44,7 +44,7 @@ class CommandWorld(plugin: GiveAll) : CommandBase() {
             return
         }
 
-        val amount = if (amt?.toIntOrNull() != null) amt.toInt() else material.maxStackSize
+        val amount = amt ?: material.maxStackSize
         val item = ItemStack(material, amount)
 
         for (player in players) {
