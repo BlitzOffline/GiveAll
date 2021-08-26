@@ -3,5 +3,5 @@ version: @version@
 author: BlitzOffline
 main: com.blitzoffline.giveall.GiveAll
 website: github.com/BlitzOffline
-api-version: 1.16
+api-version: 1.13
 softdepend: [PlaceholderAPI, Vault]
