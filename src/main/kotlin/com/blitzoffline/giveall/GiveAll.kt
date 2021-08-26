@@ -65,14 +65,8 @@ class GiveAll : JavaPlugin() {
         registerMessage("cmd.no.permission") { sender -> messages[Messages.NO_PERMISSION].msg(sender) }
         registerMessage("cmd.wrong.usage") { sender -> messages[Messages.WRONG_USAGE].msg(sender) }
 
-        registerCompletion("#worlds") { Bukkit.getWorlds().map(World::getName) }
-        registerCompletion("#materials") {
-            Material.values().map { value -> value
-                .name
-                .lowercase()
-                .replaceFirstChar { char -> if (char.isLowerCase()) char.titlecase() else it.toString() }
-            }
-        }
+        registerCompletion("#world") { Bukkit.getWorlds().map(World::getName) }
+        registerCompletion("#materials") { Material.values().map { material -> material.name.lowercase() } }
 
         registerCommands(
             CommandHand(this),
@@ -82,6 +76,7 @@ class GiveAll : JavaPlugin() {
             CommandReload(this),
             CommandWorld(this)
         )
+
         if (hooked) {
             registerCommands(
                 CommandMoney(this)

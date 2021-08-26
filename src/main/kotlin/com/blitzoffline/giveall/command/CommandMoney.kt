@@ -31,7 +31,7 @@ class CommandMoney(private val plugin: GiveAll) : CommandBase() {
         }
 
         if (argument != null && argument.toDoubleOrNull() == null && Bukkit.getWorld(argument) == null) {
-            messages[Messages.WRONG_USAGE].msg(sender)
+            messages[Messages.WRONG_RADIUS_OR_WORLD].msg(sender)
             return
         }
 
@@ -64,7 +64,7 @@ class CommandMoney(private val plugin: GiveAll) : CommandBase() {
             }
             else -> {
                 val world = Bukkit.getServer().getWorld(argument) ?: run {
-                    messages[Messages.WORLD_NAME_WRONG].msg(sender)
+                    messages[Messages.WRONG_WORLD].msg(sender)
                     return
                 }
                 players = world.players

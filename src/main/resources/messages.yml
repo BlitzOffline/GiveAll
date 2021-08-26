@@ -2,23 +2,26 @@
 ITEM-AIR: '&cYou can not send air.'
 AMOUNT-ZERO: '&cYou can not send $0.'
 INVENTORY-FULL: '&cYour inventory is full!!'
-WORLD-NAME-WRONG: '&cCould not find the world you specified.'
+WRONG-WORLD: '&cCould not find the world you specified.'
+WRONG-MATERIAL: '&cCould not find the material you specified.'
+WRONG-RADIUS: '&cRadius specified is not a number.'
+WRONG-RADIUS-OR-WORLD: '&cParameter specified is not a world or a number.'
 PLAYERS-ONLY: '&cOnly players can use the radius functionality.'
 NO-ONE-ONLINE: '&7Could not find any players online.'
 # This message is sent only if 'give-rewards-to-sender' is disabled (in config.yml)
-ONLY-YOU-ONLINE: '&7You are the only one online.'
+ONLY-YOU-ONLINE: '&7You are the only player we could find.'
 
-WRONG-USAGE: '&cWrong usage!'
+WRONG-USAGE: '&cWrong usage! Use: &e/giveall help&c to get help'
 NO-PREMISSION: '&cError: &7You don''t have permission to do that!'
 CONFIG-RELOADED: '&7Config reloaded successfully.'
 
 # Only messages where you can use the custom placeholders: %amount%, %material%, %radius% and %world%
-ITEMS-RECEIVED: '&3You have received &a%amount% %material%&3.'
+ITEMS-RECEIVED: '&3You have received &a%amount% &3x&a %material%&3.'
 MONEY-RECEIVED: '&3You have received &a$%amount%&3.'
 
-ITEMS-SENT: '&aYou have given everyone: &3%amount% %material%&a.'
-ITEMS-SENT-WORLD: '&aYou have given everyone in &3%world%&a: &3%amount% %material%&a.'
-ITEMS-SENT-RADIUS: '&aYou have given everyone in a &3%radius% blocks&a radius: &3%amount% %material%&a.'
+ITEMS-SENT: '&aYou have given everyone: &3%amount% &ax&3 %material%&a.'
+ITEMS-SENT-WORLD: '&aYou have given everyone in &3%world%&a: &3%amount% &ax&3 %material%&a.'
+ITEMS-SENT-RADIUS: '&aYou have given everyone in a &3%radius% blocks&a radius: &3%amount% &ax&3 %material%&a.'
 MONEY-SENT: '&aYou have given everyone &3$%amount%&a.'
 MONEY-SENT-WORLD: '&aYou have given everyone in &3%world%&a: &3$%amount%&a.'
 MONEY-SENT-RADIUS: '&aYou have given everyone in a &3%radius% blocks&a radius: &3$%amount%&a.'

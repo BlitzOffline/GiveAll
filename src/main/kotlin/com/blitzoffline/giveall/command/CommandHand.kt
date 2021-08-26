@@ -26,7 +26,7 @@ class CommandHand(plugin: GiveAll) : CommandBase() {
     @Permission("giveall.use.hand")
     fun giveAllHand(sender: Player, @Completion("#worlds") @Optional argument: String?) {
         if (argument != null && argument.toDoubleOrNull() == null && Bukkit.getWorld(argument) == null) {
-            messages[Messages.WRONG_USAGE].msg(sender)
+            messages[Messages.WRONG_RADIUS_OR_WORLD].msg(sender)
             return
         }
 
@@ -53,7 +53,7 @@ class CommandHand(plugin: GiveAll) : CommandBase() {
             else -> {
                 checkWorld = true
                 val world = Bukkit.getServer().getWorld(argument) ?: run {
-                    messages[Messages.WORLD_NAME_WRONG].msg(sender)
+                    messages[Messages.WRONG_WORLD].msg(sender)
                     return
                 }
                 players = world.players
@@ -70,7 +70,7 @@ class CommandHand(plugin: GiveAll) : CommandBase() {
             return
         }
 
-        // The item is cloned because it seems like if the item is changed in the player inventory's in the middle of the process, it will give the new items to the player.
+        // The item is cloned because it seems like if the item is changed in the player inventory's in the middle of the process, it will give the new items to the players.
         val item = sender.inventory.itemInMainHand.clone()
         if (item.type == Material.AIR) {
             messages[Messages.ITEM_AIR].msg(sender)

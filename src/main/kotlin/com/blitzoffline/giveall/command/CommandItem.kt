@@ -4,7 +4,12 @@ import com.blitzoffline.giveall.GiveAll
 import com.blitzoffline.giveall.config.holder.Messages
 import com.blitzoffline.giveall.config.holder.Settings
 import com.blitzoffline.giveall.util.msg
-import me.mattstudios.mf.annotations.*
+import me.mattstudios.mf.annotations.Alias
+import me.mattstudios.mf.annotations.Command
+import me.mattstudios.mf.annotations.Completion
+import me.mattstudios.mf.annotations.Default
+import me.mattstudios.mf.annotations.Optional
+import me.mattstudios.mf.annotations.Permission
 import me.mattstudios.mf.base.CommandBase
 import org.bukkit.Bukkit.getServer
 import org.bukkit.Material
@@ -20,14 +25,9 @@ class CommandItem(plugin: GiveAll) : CommandBase() {
 
     @Default
     @Permission("giveall.use")
-    fun item(sender: CommandSender, @Completion("#materials") material: Material?, @Optional amt: String?) {
+    fun item(sender: CommandSender, @Completion("#material") material: Material?, @Optional amt: Int?) {
         if (material == null) {
-            messages[Messages.WRONG_USAGE].msg(sender)
-            return
-        }
-
-        if (amt != null && amt.toIntOrNull() == null) {
-            messages[Messages.WRONG_USAGE].msg(sender)
+            messages[Messages.WRONG_MATERIAL].msg(sender)
             return
         }
 
@@ -42,7 +42,7 @@ class CommandItem(plugin: GiveAll) : CommandBase() {
             return
         }
 
-        val amount = if (amt?.toIntOrNull() != null) amt.toInt() else material.maxStackSize
+        val amount = amt ?: material.maxStackSize
         val item = ItemStack(material, amount)
 
         for (player in players) {

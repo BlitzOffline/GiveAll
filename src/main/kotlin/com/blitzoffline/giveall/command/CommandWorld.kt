@@ -4,7 +4,6 @@ import com.blitzoffline.giveall.GiveAll
 import com.blitzoffline.giveall.config.holder.Messages
 import com.blitzoffline.giveall.config.holder.Settings
 import com.blitzoffline.giveall.util.msg
-import me.clip.placeholderapi.PlaceholderAPI
 import me.mattstudios.mf.annotations.Alias
 import me.mattstudios.mf.annotations.Command
 import me.mattstudios.mf.annotations.Completion
@@ -12,7 +11,6 @@ import me.mattstudios.mf.annotations.Optional
 import me.mattstudios.mf.annotations.Permission
 import me.mattstudios.mf.annotations.SubCommand
 import me.mattstudios.mf.base.CommandBase
-import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.command.CommandSender
@@ -27,9 +25,14 @@ class CommandWorld(plugin: GiveAll) : CommandBase() {
 
     @SubCommand("world")
     @Permission("giveall.use.world")
-    fun world(sender: CommandSender, @Completion("#worlds") world: World?, @Completion("#materials") material: Material, @Optional amt: Int?) {
+    fun world(sender: CommandSender, @Completion("#worlds") world: World?, @Completion("#materials") material: Material?, @Optional amt: Int?) {
         if (world == null) {
-            messages[Messages.WORLD_NAME_WRONG].msg(sender)
+            messages[Messages.WRONG_WORLD].msg(sender)
+            return
+        }
+
+        if (material == null) {
+            messages[Messages.WRONG_MATERIAL].msg(sender)
             return
         }
 
@@ -58,7 +61,7 @@ class CommandWorld(plugin: GiveAll) : CommandBase() {
             if (player.inventory.firstEmpty() == -1) messages[Messages.INVENTORY_FULL].msg(player)
         }
 
-        messages[Messages.ITEMS_SENT]
+        messages[Messages.ITEMS_SENT_WORLD]
             .replace("%amount%", amount.toString())
             .replace("%material%", material.name.lowercase())
             .replace("%world%", world.name)

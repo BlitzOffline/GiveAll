@@ -25,8 +25,13 @@ class CommandRadius(plugin: GiveAll) : CommandBase() {
     @SubCommand("radius")
     @Permission("giveall.use.radius")
     fun radius(sender: Player, radius: Double?, @Completion("#materials") material: Material?, @Optional amt: Int?) {
-        if (radius == null || material == null) {
-            messages[Messages.WRONG_USAGE].msg(sender)
+        if (material == null) {
+            messages[Messages.WRONG_MATERIAL].msg(sender)
+            return
+        }
+
+        if (radius == null) {
+            messages[Messages.WRONG_RADIUS].msg(sender)
             return
         }
 
@@ -68,7 +73,7 @@ class CommandRadius(plugin: GiveAll) : CommandBase() {
             if (player.inventory.firstEmpty() == -1) messages[Messages.INVENTORY_FULL].msg(player)
         }
 
-        messages[Messages.ITEMS_SENT]
+        messages[Messages.ITEMS_SENT_RADIUS]
             .replace("%amount%", amount.toString())
             .replace("%material%", material.name.lowercase())
             .replace("%radius%", radius.toInt().toString())
