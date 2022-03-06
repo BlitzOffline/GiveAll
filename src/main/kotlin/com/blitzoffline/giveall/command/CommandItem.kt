@@ -1,8 +1,6 @@
 package com.blitzoffline.giveall.command
 
 import com.blitzoffline.giveall.GiveAll
-import com.blitzoffline.giveall.config.holder.Messages
-import com.blitzoffline.giveall.config.holder.Settings
 import com.blitzoffline.giveall.util.msg
 import me.mattstudios.mf.annotations.Alias
 import me.mattstudios.mf.annotations.Command
@@ -19,14 +17,14 @@ import org.bukkit.inventory.ItemStack
 
 @Alias("gall")
 @Command("giveall")
-class CommandItem(plugin: GiveAll) : CommandBase() {
-    private val settings = plugin.settings
-    private val messages = plugin.messages
-
+class CommandItem(private val plugin: GiveAll) : CommandBase() {
     @Default
     @Permission("giveall.use")
     @Completion("#materials")
     fun item(sender: CommandSender, @Optional args: Array<String>) {
+        val settings = plugin.settings
+        val messages = plugin.messages
+
         if (args.isEmpty()) {
             if (sender.hasPermission("giveall.help")) {
                 "&7---- &6GiveAll by BlitzOffline &7----".msg(sender)
@@ -39,24 +37,24 @@ class CommandItem(plugin: GiveAll) : CommandBase() {
                 "&7/giveall hand [world/radius] &8-&f give the items you hold in your hand to all players".msg(sender)
                 "&7/giveall money <amount> [world/radius] &8-&f give money to all players".msg(sender)
             } else {
-                messages[Messages.WRONG_USAGE].msg(sender)
+                messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help").msg(sender)
             }
             return
         }
 
         val material = Material.matchMaterial(args[0].uppercase()) ?: run {
-            messages[Messages.WRONG_MATERIAL].msg(sender)
+            messages.node("WRONG-MATERIAL").getString("&cCould not find the material you specified.").msg(sender)
             return
         }
 
         val players = getServer().onlinePlayers
         if (players.isEmpty()) {
-            messages[Messages.NO_ONE_ONLINE].msg(sender)
+            messages.node("NO-ONE-ONLINE").getString("&7Could not find any players online.").msg(sender)
             return
         }
 
-        if (sender is Player && players.size == 1 && !settings[Settings.GIVE_REWARDS_TO_SENDER]) {
-            messages[Messages.ONLY_YOU_ONLINE].msg(sender)
+        if (sender is Player && players.size == 1 && !settings.node("give-rewards-to-sender").getBoolean(false)) {
+            messages.node("ONLY-YOU-ONLINE").getString("&7You are the only player we could find.").msg(sender)
             return
         }
 
@@ -64,16 +62,16 @@ class CommandItem(plugin: GiveAll) : CommandBase() {
         val item = ItemStack(material, amount)
 
         for (player in players) {
-            if (!settings[Settings.GIVE_REWARDS_TO_SENDER] && player == sender) continue
-            if (settings[Settings.REQUIRES_PERMISSION] && !player.hasPermission("giveall.receive")) continue
+            if (!settings.node("give-rewards-to-sender").getBoolean(false) && player == sender) continue
+            if (settings.node("requires-permission").getBoolean(false) && !player.hasPermission("giveall.receive")) continue
             player.inventory.addItem(item)
-            messages[Messages.ITEMS_RECEIVED]
+            messages.node("ITEMS-RECEIVED").getString("&3You have received &a%amount% &3x&a %material%&3.")
                 .replace("%amount%", amount.toString())
                 .replace("%material%", material.name.lowercase())
                 .msg(player)
-            if (player.inventory.firstEmpty() == -1) messages[Messages.INVENTORY_FULL].msg(player)
+            if (player.inventory.firstEmpty() == -1) messages.node("INVENTORY-FULL").getString("&cYour inventory is full!!").msg(player)
         }
-        messages[Messages.ITEMS_SENT]
+        messages.node("ITEMS-SENT").getString("&aYou have given everyone: &3%amount% &ax&3 %material%&a.")
             .replace("%amount%", amount.toString())
             .replace("%material%", material.name.lowercase())
             .msg(sender)

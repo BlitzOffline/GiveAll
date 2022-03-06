@@ -19,7 +19,7 @@ repositories {
 
 dependencies {
     implementation("me.mattstudios.utils:matt-framework:1.4.6")
-    implementation("me.mattstudios:triumph-config:1.0.5-SNAPSHOT")
+    implementation("org.spongepowered:configurate-yaml:4.1.2")
     implementation("net.kyori:adventure-api:4.10.0")
     implementation("net.kyori:adventure-platform-bukkit:4.1.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
@@ -30,8 +30,9 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_11
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+//    sourceCompatibility = JavaVersion.VERSION_17
+//    targetCompatibility = JavaVersion.VERSION_11
 }
 
 tasks {
@@ -44,7 +45,7 @@ tasks {
         withType<ShadowJar> {
             relocate("kotlin", "com.blitzoffline.giveall.libs.kotlin")
             relocate("me.mattstudios.mf", "com.blitzoffline.giveall.libs.commands")
-            relocate("me.mattstudios.config", "com.blitzoffline.giveall.libs.config")
+            relocate("org.spongepowered.configurate", "com.blitzoffline.giveall.libs.configurate")
             relocate("net.kyori", "com.blitzoffline.giveall.libs.adventure")
             archiveFileName.set("GiveAll-${project.version}.jar")
         }

@@ -1,8 +1,6 @@
 package com.blitzoffline.giveall.command
 
 import com.blitzoffline.giveall.GiveAll
-import com.blitzoffline.giveall.config.holder.Messages
-import com.blitzoffline.giveall.config.holder.Settings
 import com.blitzoffline.giveall.util.msg
 import me.mattstudios.mf.annotations.Alias
 import me.mattstudios.mf.annotations.Command
@@ -18,15 +16,15 @@ import org.bukkit.util.BoundingBox
 
 @Alias("gall")
 @Command("giveall")
-class CommandHand(plugin: GiveAll) : CommandBase() {
-    private val settings = plugin.settings
-    private val messages = plugin.messages
-
+class CommandHand(private val plugin: GiveAll) : CommandBase() {
     @SubCommand("hand")
     @Permission("giveall.use.hand")
     fun giveAllHand(sender: Player, @Completion("#worlds") @Optional argument: String?) {
+        val settings = plugin.settings
+        val messages = plugin.messages
+
         if (argument != null && argument.toDoubleOrNull() == null && Bukkit.getWorld(argument) == null) {
-            messages[Messages.WRONG_RADIUS_OR_WORLD].msg(sender)
+            messages.node("WRONG-RADIUS-OR-WORLD").getString("&cParameter specified is not a world or a number.").msg(sender)
             return
         }
 
@@ -53,7 +51,7 @@ class CommandHand(plugin: GiveAll) : CommandBase() {
             else -> {
                 checkWorld = true
                 val world = Bukkit.getServer().getWorld(argument) ?: run {
-                    messages[Messages.WRONG_WORLD].msg(sender)
+                    messages.node("WRONG-WORLD").getString("&cCould not find the world you specified.").msg(sender)
                     return
                 }
                 players = world.players
@@ -61,50 +59,50 @@ class CommandHand(plugin: GiveAll) : CommandBase() {
         }
 
         if (players.isEmpty()) {
-            messages[Messages.NO_ONE_ONLINE].msg(sender)
+            messages.node("NO-ONE-ONLINE").getString("&7Could not find any players online.").msg(sender)
             return
         }
 
-        if (!settings[Settings.GIVE_REWARDS_TO_SENDER] && players.contains(sender) && players.size == 1) {
-            messages[Messages.ONLY_YOU_ONLINE].msg(sender)
+        if (!settings.node("give-rewards-to-sender").getBoolean(false) && players.contains(sender) && players.size == 1) {
+            messages.node("ONLY-YOU-ONLINE").getString("&7You are the only player we could find.").msg(sender)
             return
         }
 
         // The item is cloned because it seems like if the item is changed in the player inventory's in the middle of the process, it will give the new items to the players.
         val item = sender.inventory.itemInMainHand.clone()
         if (item.type == Material.AIR) {
-            messages[Messages.ITEM_AIR].msg(sender)
+            messages.node("ITEM-AIR").getString("&cYou can not send air.").msg(sender)
             return
         }
 
         for (player in players) {
-            if (!settings[Settings.GIVE_REWARDS_TO_SENDER] && player == sender) continue
-            if (settings[Settings.REQUIRES_PERMISSION] && !player.hasPermission("giveall.receive")) continue
+            if (!settings.node("give-rewards-to-sender").getBoolean(false) && player == sender) continue
+            if (settings.node("requires-permission").getBoolean(false)&& !player.hasPermission("giveall.receive")) continue
             player.inventory.addItem(item.clone())
-            messages[Messages.ITEMS_RECEIVED]
+            messages.node("ITEMS-RECEIVED").getString("&3You have received &a%amount% &3x&a %material%&3.")
                 .replace("%amount%", item.amount.toString())
                 .replace("%material%", item.type.name.lowercase())
                 .msg(player)
-            if (player.inventory.firstEmpty() == -1) messages[Messages.INVENTORY_FULL].msg(player)
+            if (player.inventory.firstEmpty() == -1) messages.node("INVENTORY-FULL").getString("&cYour inventory is full!!").msg(player)
         }
 
         when {
             checkWorld -> {
-                messages[Messages.ITEMS_SENT_WORLD]
+                messages.node("ITEMS-SENT-WORLD").getString("&aYou have given everyone in &3%world%&a: &3%amount% &ax&3 %material%&a.")
                     .replace("%amount%", item.amount.toString())
                     .replace("%material%", item.type.name.lowercase())
                     .replace("%world%", argument.toString())
                     .msg(sender)
             }
             checkRadius -> {
-                messages[Messages.ITEMS_SENT_RADIUS]
+                messages.node("ITEMS-SENT-WORLD").getString("&aYou have given everyone in &3%world%&a: &3%amount% &ax&3 %material%&a.")
                     .replace("%amount%", item.amount.toString())
                     .replace("%material%", item.type.name.lowercase())
                     .replace("%radius%", argument.toString())
                     .msg(sender)
             }
             else -> {
-                messages[Messages.ITEMS_SENT]
+                messages.node("ITEMS-SENT").getString("&aYou have given everyone: &3%amount% &ax&3 %material%&a.")
                     .replace("%amount%", item.amount.toString())
                     .replace("%material%", item.type.name.lowercase())
                     .msg(sender)
