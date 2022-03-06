@@ -31,12 +31,16 @@ dependencies {
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
-//    sourceCompatibility = JavaVersion.VERSION_17
-//    targetCompatibility = JavaVersion.VERSION_11
 }
 
 tasks {
     withType<KotlinCompile> {
+        withType<ProcessResources> {
+            filesMatching("plugin.yml") {
+                expand("version" to project.version)
+            }
+        }
+
         kotlinOptions {
             jvmTarget = "11"
             javaParameters = true

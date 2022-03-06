@@ -1,5 +1,5 @@
 name: GiveAll
-version: @version@
+version: ${version}
 author: BlitzOffline
 main: com.blitzoffline.giveall.GiveAll
 website: github.com/BlitzOffline
