@@ -5,6 +5,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 
+// TODO: 3/6/22 Switch to MiniMessages.
 val specialSerializer = LegacyComponentSerializer.builder().hexColors().useUnusualXRepeatedCharacterHexFormat().build()
 val legacySerializer = LegacyComponentSerializer.legacyAmpersand()
 

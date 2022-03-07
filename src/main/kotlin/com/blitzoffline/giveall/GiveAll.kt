@@ -22,6 +22,8 @@ import org.bukkit.World
 import org.bukkit.plugin.java.JavaPlugin
 import org.spongepowered.configurate.CommentedConfigurationNode
 
+// TODO: 3/6/22 Refactor the settings and messages
+// TODO: 3/6/22 Add XP Give.
 class GiveAll : JavaPlugin() {
     lateinit var settings: CommentedConfigurationNode
         private set
