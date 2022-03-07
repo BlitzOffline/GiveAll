@@ -7,9 +7,8 @@ plugins {
 }
 
 group = "com.blitzoffline"
-// TODO: 3/6/22 Bump version to 0.0.6 before updating plugin.
-// Also don't forget to mention that versioning will change after the big update following https://semver.org/
-version = "0.0.5"
+// TODO: Don't forget to mention that versioning will change after the big update following https://semver.org/
+version = "0.0.6"
 
 repositories {
     mavenCentral()
