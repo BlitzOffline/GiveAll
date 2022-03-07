@@ -2,24 +2,22 @@ package com.blitzoffline.giveall.command
 
 import com.blitzoffline.giveall.GiveAll
 import com.blitzoffline.giveall.util.msg
-import me.mattstudios.mf.annotations.Alias
-import me.mattstudios.mf.annotations.Command
-import me.mattstudios.mf.annotations.Completion
-import me.mattstudios.mf.annotations.Optional
-import me.mattstudios.mf.annotations.Permission
-import me.mattstudios.mf.annotations.SubCommand
-import me.mattstudios.mf.base.CommandBase
+import dev.triumphteam.cmd.bukkit.annotation.Permission
+import dev.triumphteam.cmd.core.BaseCommand
+import dev.triumphteam.cmd.core.annotation.Command
+import dev.triumphteam.cmd.core.annotation.Optional
+import dev.triumphteam.cmd.core.annotation.SubCommand
+import dev.triumphteam.cmd.core.annotation.Suggestion
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.util.BoundingBox
 
-@Alias("gall")
-@Command("giveall")
-class CommandHand(private val plugin: GiveAll) : CommandBase() {
+@Command("giveall", alias = ["gall"])
+class CommandHand(private val plugin: GiveAll) : BaseCommand() {
     @SubCommand("hand")
     @Permission("giveall.use.hand")
-    fun giveAllHand(sender: Player, @Completion("#worlds") @Optional argument: String?) {
+    fun giveAllHand(sender: Player, @Suggestion("worlds") @Optional argument: String?) {
         val settings = plugin.settings
         val messages = plugin.messages
 
@@ -68,7 +66,6 @@ class CommandHand(private val plugin: GiveAll) : CommandBase() {
             return
         }
 
-        // The item is cloned because it seems like if the item is changed in the player inventory's in the middle of the process, it will give the new items to the players.
         val item = sender.inventory.itemInMainHand.clone()
         if (item.type == Material.AIR) {
             messages.node("ITEM-AIR").getString("&cYou can not send air.").msg(sender)

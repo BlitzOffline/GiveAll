@@ -10,15 +10,17 @@ import com.blitzoffline.giveall.command.CommandWorld
 import com.blitzoffline.giveall.settings.SettingsManager
 import com.blitzoffline.giveall.util.adventure
 import com.blitzoffline.giveall.util.msg
-import me.mattstudios.mf.base.CommandBase
-import me.mattstudios.mf.base.CommandManager
-import me.mattstudios.mf.base.components.CompletionResolver
-import me.mattstudios.mf.base.components.MessageResolver
+import dev.triumphteam.cmd.bukkit.BukkitCommandManager
+import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey
+import dev.triumphteam.cmd.core.BaseCommand
+import dev.triumphteam.cmd.core.message.MessageKey
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.World
+import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 import org.spongepowered.configurate.CommentedConfigurationNode
 
@@ -34,7 +36,7 @@ class GiveAll : JavaPlugin() {
         private set
     private var hooked = false
 
-    private lateinit var commandManager: CommandManager
+    private lateinit var commandManager: BukkitCommandManager<CommandSender>
     private lateinit var settingsManager: SettingsManager
 
     override fun onEnable() {
@@ -51,10 +53,18 @@ class GiveAll : JavaPlugin() {
         val hooksNode = settings.node("hooks")
 
         if (hooksNode.node("vault").getBoolean(true)) {
-            if (Bukkit.getPluginManager().getPlugin("Vault") == null) {
-                logger.warning("Could not find Vault! If you don't want to use vault, disable the hook from config.yml!")
+            val vault = Bukkit.getPluginManager().getPlugin("Vault")
+            if (vault == null) {
+                logger.warning("Could not find Vault! If you don't want to use it, disable the hook from config.yml!")
                 pluginLoader.disablePlugin(this)
+                return
             }
+            if (!vault.isEnabled) {
+                logger.warning("Vault is disabled! If you don't want to use it, disable the hook from config.yml!")
+                pluginLoader.disablePlugin(this)
+                return
+            }
+
             econ = fetchEconomy() ?: run {
                 logger.warning("Could not load the economy. Make sure vault is installed and working!")
                 pluginLoader.disablePlugin(this)
@@ -63,16 +73,9 @@ class GiveAll : JavaPlugin() {
             hooked = true
         }
 
-        commandManager = CommandManager(this, true)
-        registerMessage("cmd.no.permission") { sender ->
-            messages.node("NO-PERMISSION").getString("&cError: &7You don''t have permission to do that!").msg(sender)
-        }
-        registerMessage("cmd.wrong.usage") { sender ->
-            messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
-        }
-
-        registerCompletion("#worlds") { Bukkit.getWorlds().map(World::getName) }
-        registerCompletion("#materials") { Material.values().map { material -> material.name.lowercase() } }
+        commandManager = BukkitCommandManager.create(this)
+        registerMessage()
+        registerCompletion()
 
         registerCommands(
             CommandHand(this),
@@ -103,13 +106,51 @@ class GiveAll : JavaPlugin() {
         messages = settingsManager.loadSettings("messages.yml")
     }
 
-    private fun registerCommands(vararg commands: CommandBase) = commands.forEach(commandManager::register)
-    private fun registerCompletion(completionId: String, resolver: CompletionResolver) = commandManager.completionHandler.register(completionId, resolver)
-    private fun registerMessage(messageId: String, resolver: MessageResolver) = commandManager.messageHandler.register(messageId, resolver)
+    private fun registerCommands(vararg commands: BaseCommand) = commands.forEach(commandManager::registerCommand)
+    private fun registerCompletion() {
+        commandManager.registerSuggestion(SuggestionKey.of("worlds")) { _, _ ->
+            return@registerSuggestion Bukkit.getWorlds().map(World::getName)
+        }
+
+        commandManager.registerSuggestion(SuggestionKey.of("materials")) { _, _ ->
+            return@registerSuggestion Material.values().map { material -> material.name.lowercase() }
+        }
+    }
+    private fun registerMessage() {
+        commandManager.registerMessage(BukkitMessageKey.NO_PERMISSION) { sender, _ ->
+            messages.node("NO-PERMISSION").getString("&cError: &7You don''t have permission to do that!").msg(sender)
+        }
+
+        commandManager.registerMessage(MessageKey.INVALID_ARGUMENT) { sender, _ ->
+            messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
+        }
+
+        commandManager.registerMessage(MessageKey.UNKNOWN_COMMAND) { sender, _ ->
+            messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
+        }
+
+        commandManager.registerMessage(MessageKey.INVALID_FLAG_ARGUMENT) { sender, _ ->
+            messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
+        }
+
+        commandManager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG) { sender, _ ->
+            messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
+        }
+
+        commandManager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT) { sender, _ ->
+            messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
+        }
+
+        commandManager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS) { sender, _ ->
+            messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
+        }
+        commandManager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS) { sender, _ ->
+            messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
+        }
+
+    }
 
     private fun fetchEconomy(): Economy? {
-        if (Bukkit.getServer().pluginManager.getPlugin("Vault") == null) return null
-        val rsp = Bukkit.getServer().servicesManager.getRegistration(Economy::class.java) ?: return null
-        return rsp.provider
+        return Bukkit.getServer().servicesManager.getRegistration(Economy::class.java)?.provider
     }
 }

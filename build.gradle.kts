@@ -20,8 +20,7 @@ repositories {
 }
 
 dependencies {
-    // TODO: 3/6/22 Migrate to triumph commands 2.0.0-Snapshot
-    implementation("me.mattstudios.utils:matt-framework:1.4.6")
+    implementation("dev.triumphteam:triumph-cmd-bukkit:2.0.0-SNAPSHOT")
     implementation("org.spongepowered:configurate-yaml:4.1.2")
     implementation("net.kyori:adventure-api:4.10.0")
     implementation("net.kyori:adventure-platform-bukkit:4.1.0")
@@ -51,7 +50,7 @@ tasks {
 
         withType<ShadowJar> {
             relocate("kotlin", "com.blitzoffline.giveall.libs.kotlin")
-            relocate("me.mattstudios.mf", "com.blitzoffline.giveall.libs.commands")
+            relocate("dev.triumphteam.cmd", "com.blitzoffline.giveall.libs.commands")
             relocate("org.spongepowered.configurate", "com.blitzoffline.giveall.libs.configurate")
             relocate("net.kyori", "com.blitzoffline.giveall.libs.adventure")
             archiveFileName.set("GiveAll-${project.version}.jar")

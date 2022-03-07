@@ -2,25 +2,23 @@ package com.blitzoffline.giveall.command
 
 import com.blitzoffline.giveall.GiveAll
 import com.blitzoffline.giveall.util.msg
-import me.mattstudios.mf.annotations.Alias
-import me.mattstudios.mf.annotations.Command
-import me.mattstudios.mf.annotations.Completion
-import me.mattstudios.mf.annotations.Default
-import me.mattstudios.mf.annotations.Optional
-import me.mattstudios.mf.annotations.Permission
-import me.mattstudios.mf.base.CommandBase
+import dev.triumphteam.cmd.bukkit.annotation.Permission
+import dev.triumphteam.cmd.core.BaseCommand
+import dev.triumphteam.cmd.core.annotation.Command
+import dev.triumphteam.cmd.core.annotation.Default
+import dev.triumphteam.cmd.core.annotation.Optional
+import dev.triumphteam.cmd.core.annotation.Suggestion
 import org.bukkit.Bukkit.getServer
 import org.bukkit.Material
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
-@Alias("gall")
-@Command("giveall")
-class CommandItem(private val plugin: GiveAll) : CommandBase() {
+@Command("giveall", alias = ["gall"])
+class CommandItem(private val plugin: GiveAll) : BaseCommand() {
     @Default
     @Permission("giveall.use")
-    @Completion("#materials")
+    @Suggestion("materials")
     fun item(sender: CommandSender, @Optional args: Array<String>) {
         val settings = plugin.settings
         val messages = plugin.messages

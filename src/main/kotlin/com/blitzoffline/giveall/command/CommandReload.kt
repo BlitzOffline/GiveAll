@@ -2,16 +2,14 @@ package com.blitzoffline.giveall.command
 
 import com.blitzoffline.giveall.GiveAll
 import com.blitzoffline.giveall.util.msg
-import me.mattstudios.mf.annotations.Alias
-import me.mattstudios.mf.annotations.Command
-import me.mattstudios.mf.annotations.Permission
-import me.mattstudios.mf.annotations.SubCommand
-import me.mattstudios.mf.base.CommandBase
+import dev.triumphteam.cmd.bukkit.annotation.Permission
+import dev.triumphteam.cmd.core.BaseCommand
+import dev.triumphteam.cmd.core.annotation.Command
+import dev.triumphteam.cmd.core.annotation.SubCommand
 import org.bukkit.command.CommandSender
 
-@Alias("gall")
-@Command("giveall")
-class CommandReload(private val plugin: GiveAll) : CommandBase() {
+@Command("giveall", alias = ["gall"])
+class CommandReload(private val plugin: GiveAll) : BaseCommand() {
     @SubCommand("reload")
     @Permission("giveall.admin")
     fun reload(sender: CommandSender) {
