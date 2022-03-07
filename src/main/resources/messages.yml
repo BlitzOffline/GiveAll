@@ -1,6 +1,7 @@
 # Customize the messages that are sent by the plugin:
 ITEM-AIR: '&cYou can not send air.'
 AMOUNT-ZERO: '&cYou can not send $0.'
+XP-ZERO: '&cYou can not send 0 xp.'
 INVENTORY-FULL: '&cYour inventory is full!!'
 WRONG-WORLD: '&cCould not find the world you specified.'
 WRONG-MATERIAL: '&cCould not find the material you specified.'
@@ -18,6 +19,9 @@ CONFIG-RELOADED: '&7Config reloaded successfully.'
 # Only messages where you can use the custom placeholders: %amount%, %material%, %radius% and %world%
 ITEMS-RECEIVED: '&3You have received &a%amount% &3x&a %material%&3.'
 MONEY-RECEIVED: '&3You have received &a$%amount%&3.'
+XP-RECEIVED:
+  LEVELS: '&3You have received &a%amount%&3 xp levels.'
+  XP: '&3You have received &a%amount%&3 xp points.'
 
 ITEMS-SENT: '&aYou have given everyone: &3%amount% &ax&3 %material%&a.'
 ITEMS-SENT-WORLD: '&aYou have given everyone in &3%world%&a: &3%amount% &ax&3 %material%&a.'
@@ -25,3 +29,12 @@ ITEMS-SENT-RADIUS: '&aYou have given everyone in a &3%radius% blocks&a radius: &
 MONEY-SENT: '&aYou have given everyone &3$%amount%&a.'
 MONEY-SENT-WORLD: '&aYou have given everyone in &3%world%&a: &3$%amount%&a.'
 MONEY-SENT-RADIUS: '&aYou have given everyone in a &3%radius% blocks&a radius: &3$%amount%&a.'
+XP-SENT:
+  LEVELS: '&aYou have given everyone: &3%amount% &axp levels.'
+  XP: '&aYou have given everyone: &3%amount% &axp points.'
+XP-SENT-WORLD:
+  LEVELS: '&aYou have given everyone in &3%world%&a: &3%amount% &axp levels.'
+  XP: '&aYou have given everyone in &3%world%&a: &3%amount% &axp points.'
+XP-SENT-RADIUS:
+  LEVELS: '&aYou have given everyone in a &3%radius% blocks&a radius: &3%amount%&a xp levels.'
+  XP: '&aYou have given everyone in a &3%radius% blocks&a radius: &3%amount%&a xp points.'

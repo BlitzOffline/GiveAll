@@ -7,6 +7,7 @@ import com.blitzoffline.giveall.command.CommandMoney
 import com.blitzoffline.giveall.command.CommandRadius
 import com.blitzoffline.giveall.command.CommandReload
 import com.blitzoffline.giveall.command.CommandWorld
+import com.blitzoffline.giveall.command.CommandXp
 import com.blitzoffline.giveall.settings.SettingsManager
 import com.blitzoffline.giveall.util.adventure
 import com.blitzoffline.giveall.util.msg
@@ -25,7 +26,6 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.spongepowered.configurate.CommentedConfigurationNode
 
 // TODO: 3/6/22 Refactor the settings and messages
-// TODO: 3/6/22 Add XP Give.
 class GiveAll : JavaPlugin() {
     lateinit var settings: CommentedConfigurationNode
         private set
@@ -83,7 +83,8 @@ class GiveAll : JavaPlugin() {
             CommandItem(this),
             CommandRadius(this),
             CommandReload(this),
-            CommandWorld(this)
+            CommandWorld(this),
+            CommandXp(this)
         )
 
         if (hooked) {

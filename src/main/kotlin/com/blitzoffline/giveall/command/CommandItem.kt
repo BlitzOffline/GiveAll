@@ -19,7 +19,7 @@ class CommandItem(private val plugin: GiveAll) : BaseCommand() {
     @Default
     @Permission("giveall.use")
     @Suggestion("materials")
-    fun item(sender: CommandSender, @Optional args: Array<String>) {
+    fun item(sender: CommandSender, @Optional args: List<String>) {
         val settings = plugin.settings
         val messages = plugin.messages
 
