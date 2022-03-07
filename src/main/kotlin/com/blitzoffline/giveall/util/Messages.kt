@@ -6,7 +6,5 @@ import org.bukkit.entity.Player
 
 lateinit var adventure: BukkitAudiences
 
-// TODO: 3/6/22 Parse placeholders for null if sender is CommandSender. Also test to see if the sender is a player and parse placeholders for that as well.
 fun String.msg(player: Player) = adventure.player(player).sendMessage(legacySerializer.deserialize(this.parsePAPI(player)))
-fun String.msg(sender: CommandSender) = adventure.sender(sender).sendMessage(legacySerializer.deserialize(this))
-fun String.broadcast() = adventure.all().sendMessage(legacySerializer.deserialize(this))
+fun String.msg(sender: CommandSender) = adventure.sender(sender).sendMessage(legacySerializer.deserialize(this.parsePAPI(sender as? Player)))

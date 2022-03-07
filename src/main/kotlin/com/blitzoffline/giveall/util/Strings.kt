@@ -12,5 +12,5 @@ val legacySerializer = LegacyComponentSerializer.legacyAmpersand()
 fun String.color() = specialSerializer.serialize(legacySerializer.deserialize(this))
 fun List<String>.color() = map { it.color() }
 
-fun String.parsePAPI(player: Player) = PlaceholderAPI.setPlaceholders(player, this)
-fun String.parsePAPI(player: OfflinePlayer) = PlaceholderAPI.setPlaceholders(player, this)
+fun String.parsePAPI(player: Player?) = PlaceholderAPI.setPlaceholders(player, this)
+fun String.parsePAPI(player: OfflinePlayer?) = PlaceholderAPI.setPlaceholders(player, this)
