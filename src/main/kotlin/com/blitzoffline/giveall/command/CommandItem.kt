@@ -32,6 +32,7 @@ class CommandItem(private val plugin: GiveAll) : BaseCommand() {
                 "&7/giveall <material> [amount] &8-&f give items to all players".msg(sender)
                 "&7/giveall world <world> <material> [amount] &8-&f give items to all players in a world".msg(sender)
                 "&7/giveall radius <radius> <material> [amount] &8-&f give items to all players in a radius".msg(sender)
+                "&7/giveall console-radius <radius> <material> <x> <y> <z> <world-name> [amount] &8-&f give items to all players in a radius".msg(sender)
                 "&7/giveall hand [world/radius] &8-&f give the items you hold in your hand to all players".msg(sender)
                 "&7/giveall money <amount> [world/radius] &8-&f give money to all players".msg(sender)
             } else {

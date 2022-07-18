@@ -1,5 +1,6 @@
 package com.blitzoffline.giveall
 
+import com.blitzoffline.giveall.command.CommandConsoleRadius
 import com.blitzoffline.giveall.command.CommandHand
 import com.blitzoffline.giveall.command.CommandHelp
 import com.blitzoffline.giveall.command.CommandItem
@@ -78,6 +79,7 @@ class GiveAll : JavaPlugin() {
         registerCompletion()
 
         registerCommands(
+            CommandConsoleRadius(this),
             CommandHand(this),
             CommandHelp(),
             CommandItem(this),
@@ -122,29 +124,63 @@ class GiveAll : JavaPlugin() {
             messages.node("NO-PERMISSION").getString("&cError: &7You don''t have permission to do that!").msg(sender)
         }
 
-        commandManager.registerMessage(MessageKey.INVALID_ARGUMENT) { sender, _ ->
-            messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
+        commandManager.registerMessage(BukkitMessageKey.CONSOLE_ONLY) { sender, _ ->
+            messages.node("CONSOLE-ONLY").getString("&cThis functionality can only be used from console.").msg(sender)
         }
 
         commandManager.registerMessage(MessageKey.UNKNOWN_COMMAND) { sender, _ ->
             messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
         }
 
-        commandManager.registerMessage(MessageKey.INVALID_FLAG_ARGUMENT) { sender, _ ->
-            messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
-        }
+        commandManager.registerMessage(MessageKey.INVALID_ARGUMENT) { sender, context ->
+            when {
+                context.argumentType == Material::class.java -> {
+                    messages.node("WRONG-MATERIAL")
+                        .getString("&cCould not find the material you specified.")
+                        .replace("%wrong-value%", context.typedArgument)
+                        .msg(sender)
+                }
 
-        commandManager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG) { sender, _ ->
-            messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
-        }
+                context.argumentType == World::class.java -> {
+                    messages.node("WRONG-WORLD")
+                        .getString("&cCould not find the world you specified")
+                        .replace("%wrong-value%", context.typedArgument)
+                        .msg(sender)
+                }
 
-        commandManager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT) { sender, _ ->
-            messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
+                context.argumentType == Double::class.java && context.name == "radius" -> {
+                    messages.node("WRONG-RADIUS")
+                        .getString("&cRadius specified is not a number.")
+                        .replace("%wrong-value%", context.typedArgument)
+                        .msg(sender)
+                }
+
+                context.argumentType == Double::class.java &&
+                        (context.name == "x" || context.name == "y" || context.name == "z") -> {
+                    messages.node("WRONG-COORDS")
+                        .getString("&cCoordinates must be numbers.")
+                        .replace("%wrong-value%", context.typedArgument)
+                        .msg(sender)
+                }
+
+                context.argumentType == Int::class.java && context.name == "amount" -> {
+                    messages.node("WRONG-AMOUNT")
+                        .getString("&cAmount must be a number.")
+                        .replace("%wrong-value%", context.typedArgument)
+                        .msg(sender)
+                }
+
+                else -> {
+                    messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
+
+                }
+            }
         }
 
         commandManager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS) { sender, _ ->
             messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
         }
+
         commandManager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS) { sender, _ ->
             messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
         }
