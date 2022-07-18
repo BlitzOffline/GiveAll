@@ -1,7 +1,7 @@
 package com.blitzoffline.giveall.command
 
 import com.blitzoffline.giveall.GiveAll
-import com.blitzoffline.giveall.util.isAlphaNumerical
+import com.blitzoffline.giveall.util.isValidName
 import com.blitzoffline.giveall.util.msg
 import dev.triumphteam.cmd.bukkit.annotation.Permission
 import dev.triumphteam.cmd.core.BaseCommand
@@ -25,9 +25,9 @@ class CommandSaveItem(private val plugin: GiveAll) : BaseCommand() {
             return
         }
 
-        if (!name.isAlphaNumerical()) {
+        if (!name.isValidName()) {
             plugin.messages.node("NAME-ALPHANUMERICAL")
-                .getString("&cSaved item name can only contain letters and digits.")
+                .getString("&cSaved item name can only contain letters, digits, underscores and hyphens.")
                 .replace("%wrong-value%", name)
                 .msg(sender)
             return
