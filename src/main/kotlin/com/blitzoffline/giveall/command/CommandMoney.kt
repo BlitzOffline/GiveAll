@@ -1,6 +1,7 @@
 package com.blitzoffline.giveall.command
 
 import com.blitzoffline.giveall.GiveAll
+import com.blitzoffline.giveall.util.calculateBoundingBox
 import com.blitzoffline.giveall.util.msg
 import dev.triumphteam.cmd.bukkit.annotation.Permission
 import dev.triumphteam.cmd.core.BaseCommand
@@ -11,13 +12,12 @@ import dev.triumphteam.cmd.core.annotation.Suggestion
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.bukkit.util.BoundingBox
 
 @Command("giveall", alias = ["gall"])
 class CommandMoney(private val plugin: GiveAll) : BaseCommand() {
     @SubCommand("money")
     @Permission("giveall.use.money")
-    fun money(sender: CommandSender, amount: Int?, @Suggestion("worlds") @Optional argument: String?) {
+    fun money(sender: CommandSender, amount: Int, @Suggestion("worlds") @Optional argument: String?) {
         val settings = plugin.settings
         val messages = plugin.messages
 
@@ -44,17 +44,7 @@ class CommandMoney(private val plugin: GiveAll) : BaseCommand() {
             argument.toDoubleOrNull() != null -> {
                 if (sender !is Player) return
                 checkRadius = true
-                val location = sender.location
-                val radius = argument.toDouble()
-                val hypotenuse = kotlin.math.sqrt(2 * radius * radius)
-                val boundingBox = BoundingBox(
-                    location.x - hypotenuse,
-                    location.y - radius,
-                    location.z - hypotenuse,
-                    location.x + hypotenuse,
-                    location.y + radius,
-                    location.z + hypotenuse
-                )
+                val boundingBox = calculateBoundingBox(sender.location, argument.toDouble())
                 players = sender.world.getNearbyEntities(boundingBox)
                     .filterIsInstance(Player::class.java).toList()
             }

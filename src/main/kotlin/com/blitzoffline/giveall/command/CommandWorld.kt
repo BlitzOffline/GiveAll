@@ -18,19 +18,9 @@ import org.bukkit.inventory.ItemStack
 class CommandWorld(private val plugin: GiveAll) : BaseCommand() {
     @SubCommand("world")
     @Permission("giveall.use.world")
-    fun world(sender: CommandSender, @Suggestion("worlds") world: World?, @Suggestion("materials") material: Material?, @Optional amt: Int?) {
+    fun world(sender: CommandSender, @Suggestion("worlds") world: World, @Suggestion("materials") material: Material, @Optional amt: Int?) {
         val settings = plugin.settings
         val messages = plugin.messages
-
-        if (world == null) {
-            messages.node("WRONG-WORLD").getString("&cCould not find the world you specified.").msg(sender)
-            return
-        }
-
-        if (material == null) {
-            messages.node("WRONG-MATERIAL").getString("&cCould not find the material you specified.").msg(sender)
-            return
-        }
 
         val players = world.players
         if (players.isEmpty()) {
