@@ -8,19 +8,22 @@ import dev.triumphteam.cmd.core.annotation.Command
 import dev.triumphteam.cmd.core.annotation.Optional
 import dev.triumphteam.cmd.core.annotation.SubCommand
 import dev.triumphteam.cmd.core.annotation.Suggestion
-import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
 
 @Command("giveall", alias = ["gall"])
 class CommandWorld(private val plugin: GiveAll) : BaseCommand() {
     @SubCommand("world")
     @Permission("giveall.use.world")
-    fun world(sender: CommandSender, @Suggestion("worlds") world: World, @Suggestion("materials") material: Material, @Optional amt: Int?) {
+    fun world(sender: CommandSender, @Suggestion("worlds") world: World, @Suggestion("materials") material: String, @Optional amt: Int?) {
         val settings = plugin.settings
         val messages = plugin.messages
+
+        val item = plugin.savedItemsManager.getSavedItemOrMaterial(material, amt ?: -1) ?:
+        return plugin.messages.node("WRONG-MATERIAL")
+            .getString("&cCould not find the material you specified.")
+            .msg(sender)
 
         val players = world.players
         if (players.isEmpty()) {
@@ -33,23 +36,20 @@ class CommandWorld(private val plugin: GiveAll) : BaseCommand() {
             return
         }
 
-        val amount = amt ?: material.maxStackSize
-        val item = ItemStack(material, amount)
-
         for (player in players) {
             if (!settings.node("give-rewards-to-sender").getBoolean(false) && player == sender) continue
             if (settings.node("requires-permission").getBoolean(false) && !player.hasPermission("giveall.receive")) continue
             player.inventory.addItem(item)
             messages.node("ITEMS-RECEIVED").getString("&3You have received &a%amount% &3x&a %material%&3.")
-                .replace("%amount%", amount.toString())
-                .replace("%material%", material.name.lowercase())
+                .replace("%amount%", item.amount.toString())
+                .replace("%material%", material.lowercase())
                 .msg(player)
             if (player.inventory.firstEmpty() == -1) messages.node("INVENTORY-FULL").getString("&cYour inventory is full!!").msg(player)
         }
 
         messages.node("ITEMS-SENT-WORLD").getString("&aYou have given everyone in &3%world%&a: &3%amount% &ax&3 %material%&a.\"")
-            .replace("%amount%", amount.toString())
-            .replace("%material%", material.name.lowercase())
+            .replace("%amount%", item.amount.toString())
+            .replace("%material%", material.lowercase())
             .replace("%world%", world.name)
             .msg(sender)
     }

@@ -7,9 +7,15 @@ import com.blitzoffline.giveall.command.CommandItem
 import com.blitzoffline.giveall.command.CommandMoney
 import com.blitzoffline.giveall.command.CommandRadius
 import com.blitzoffline.giveall.command.CommandReload
+import com.blitzoffline.giveall.command.CommandRemoveItem
+import com.blitzoffline.giveall.command.CommandSaveItem
 import com.blitzoffline.giveall.command.CommandWorld
 import com.blitzoffline.giveall.command.CommandXp
+import com.blitzoffline.giveall.database.Database
+import com.blitzoffline.giveall.database.GsonDatabase
+import com.blitzoffline.giveall.manager.SavedItemsManager
 import com.blitzoffline.giveall.settings.SettingsManager
+import com.blitzoffline.giveall.task.SaveDataTask
 import com.blitzoffline.giveall.util.adventure
 import com.blitzoffline.giveall.util.msg
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager
@@ -24,6 +30,7 @@ import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.scheduler.BukkitTask
 import org.spongepowered.configurate.CommentedConfigurationNode
 
 // TODO: 3/6/22 Refactor the settings and messages
@@ -33,12 +40,17 @@ class GiveAll : JavaPlugin() {
     lateinit var messages: CommentedConfigurationNode
         private set
 
+    lateinit var database: Database
+        private set
+    lateinit var savedItemsManager: SavedItemsManager
+        private set
     lateinit var econ: Economy
         private set
     private var hooked = false
 
     private lateinit var commandManager: BukkitCommandManager<CommandSender>
     private lateinit var settingsManager: SettingsManager
+    private lateinit var saveData: BukkitTask
 
     override fun onEnable() {
         adventure = BukkitAudiences.create(this)
@@ -85,6 +97,8 @@ class GiveAll : JavaPlugin() {
             CommandItem(this),
             CommandRadius(this),
             CommandReload(this),
+            CommandRemoveItem(this),
+            CommandSaveItem(this),
             CommandWorld(this),
             CommandXp(this)
         )
@@ -94,10 +108,21 @@ class GiveAll : JavaPlugin() {
                 CommandMoney(this)
             )
         }
+        savedItemsManager = SavedItemsManager()
+        database = GsonDatabase(this)
+        database.loadItemStacks()
+
+        registerTasks()
+
         logger.info("Plugin enabled successfully!")
     }
 
-    override fun onDisable() = logger.info("Plugin disabled successfully!")
+    override fun onDisable() {
+        if(::saveData.isInitialized && !saveData.isCancelled) saveData.cancel()
+        database.saveItemStacks(savedItemsManager.clone())
+
+        logger.info("Plugin disabled successfully!")
+    }
 
     fun saveDefaultFile(fileName: String) {
         if (dataFolder.resolve(fileName).exists()) return
@@ -109,6 +134,10 @@ class GiveAll : JavaPlugin() {
         messages = settingsManager.loadSettings("messages.yml")
     }
 
+    private fun registerTasks() {
+        if(::saveData.isInitialized && !saveData.isCancelled) saveData.cancel()
+        saveData = SaveDataTask(this).runTaskTimer(this, 300 * 20L, 300 * 20L)
+    }
     private fun registerCommands(vararg commands: BaseCommand) = commands.forEach(commandManager::registerCommand)
     private fun registerCompletion() {
         commandManager.registerSuggestion(SuggestionKey.of("worlds")) { _, _ ->
@@ -134,13 +163,6 @@ class GiveAll : JavaPlugin() {
 
         commandManager.registerMessage(MessageKey.INVALID_ARGUMENT) { sender, context ->
             when {
-                context.argumentType == Material::class.java -> {
-                    messages.node("WRONG-MATERIAL")
-                        .getString("&cCould not find the material you specified.")
-                        .replace("%wrong-value%", context.typedArgument)
-                        .msg(sender)
-                }
-
                 context.argumentType == World::class.java -> {
                     messages.node("WRONG-WORLD")
                         .getString("&cCould not find the world you specified")
@@ -184,7 +206,6 @@ class GiveAll : JavaPlugin() {
         commandManager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS) { sender, _ ->
             messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
         }
-
     }
 
     private fun fetchEconomy(): Economy? {

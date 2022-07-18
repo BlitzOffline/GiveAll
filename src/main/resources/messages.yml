@@ -1,5 +1,7 @@
 # Customize the messages that are sent by the plugin:
-ITEM-AIR: '&cYou can not send air.'
+ITEM-AIR: '&cItem cannot be air.'
+NAME-MATERIAL: '&cSaved item name cannot be a material''s name.'
+NAME-ALPHANUMERICAL: '&cSaved item name can only contain letters and digits.'
 AMOUNT-ZERO: '&cYou can not send $0.'
 XP-ZERO: '&cYou can not send 0 xp.'
 INVENTORY-FULL: '&cYour inventory is full!!'
@@ -26,6 +28,8 @@ XP-RECEIVED:
   LEVELS: '&3You have received &a%amount%&3 xp levels.'
   XP: '&3You have received &a%amount%&3 xp points.'
 
+ITEM-SAVED: '&aThe item was saved successfully with the name: %name%'
+ITEM-REMOVED: '&aThe item with the name %name% was successfully removed.'
 ITEMS-SENT: '&aYou have given everyone: &3%amount% &ax&3 %material%&a.'
 ITEMS-SENT-WORLD: '&aYou have given everyone in &3%world%&a: &3%amount% &ax&3 %material%&a.'
 ITEMS-SENT-RADIUS: '&aYou have given everyone in a &3%radius% blocks&a radius: &3%amount% &ax&3 %material%&a.'

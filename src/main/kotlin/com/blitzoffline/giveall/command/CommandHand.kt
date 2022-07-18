@@ -10,7 +10,6 @@ import dev.triumphteam.cmd.core.annotation.Optional
 import dev.triumphteam.cmd.core.annotation.SubCommand
 import dev.triumphteam.cmd.core.annotation.Suggestion
 import org.bukkit.Bukkit
-import org.bukkit.Material
 import org.bukkit.entity.Player
 
 @Command("giveall", alias = ["gall"])
@@ -57,8 +56,8 @@ class CommandHand(private val plugin: GiveAll) : BaseCommand() {
         }
 
         val item = sender.inventory.itemInMainHand.clone()
-        if (item.type == Material.AIR) {
-            messages.node("ITEM-AIR").getString("&cYou can not send air.").msg(sender)
+        if (item.type.isAir) {
+            messages.node("ITEM-AIR").getString("&cItem cannot be air.").msg(sender)
             return
         }
 
