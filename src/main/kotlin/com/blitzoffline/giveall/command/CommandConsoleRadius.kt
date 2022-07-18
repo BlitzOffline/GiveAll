@@ -47,7 +47,7 @@ class CommandConsoleRadius(private val plugin: GiveAll) : BaseCommand() {
         for (player in players) {
             if (!settings.node("give-rewards-to-sender").getBoolean(false) && player == sender) continue
             if (settings.node("requires-permission").getBoolean(false) && !player.hasPermission("giveall.receive")) continue
-            player.inventory.addItem(item)
+            player.inventory.addItem(item.clone())
             messages.node("ITEMS-RECEIVED").getString("&3You have received &a%amount% &3x&a %material%&3.")
                 .replace("%amount%", item.amount.toString())
                 .replace("%material%", material.lowercase())
