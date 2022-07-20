@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("org.jetbrains.kotlin.jvm") version "1.6.10"
+    kotlin("jvm") version "1.7.10"
 }
 
 group = "com.blitzoffline"
@@ -20,13 +20,12 @@ repositories {
 dependencies {
     implementation("dev.triumphteam:triumph-cmd-bukkit:2.0.0-SNAPSHOT")
     implementation("org.spongepowered:configurate-yaml:4.1.2")
-    implementation("net.kyori:adventure-api:4.10.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.1.0")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
+    implementation("net.kyori:adventure-api:4.11.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.1.1")
 
-    compileOnly("me.clip:placeholderapi:2.11.1")
+    compileOnly("me.clip:placeholderapi:2.11.2")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.19-R0.1-SNAPSHOT")
 }
 
 java {
