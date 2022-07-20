@@ -7,8 +7,7 @@ plugins {
 }
 
 group = "com.blitzoffline"
-// TODO: Don't forget to mention that versioning will change after the big update following https://semver.org/
-version = "0.0.6"
+version = "0.0.7-Snapshot"
 
 repositories {
     mavenCentral()

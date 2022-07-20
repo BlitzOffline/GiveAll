@@ -1,13 +1,18 @@
 # Customize the messages that are sent by the plugin:
-ITEM-AIR: '&cYou can not send air.'
+ITEM-AIR: '&cItem cannot be air.'
+NAME-MATERIAL: '&cSaved item name cannot be a material''s name.'
+NAME-ALPHANUMERICAL: '&cSaved item name can only contain letters and digits.'
 AMOUNT-ZERO: '&cYou can not send $0.'
 XP-ZERO: '&cYou can not send 0 xp.'
 INVENTORY-FULL: '&cYour inventory is full!!'
+WRONG-COORDS: '&cCoordinates must be numbers.'
+WRONG-AMOUNT: '&cAmount must be a number.'
 WRONG-WORLD: '&cCould not find the world you specified.'
 WRONG-MATERIAL: '&cCould not find the material you specified.'
 WRONG-RADIUS: '&cRadius specified is not a number.'
 WRONG-RADIUS-OR-WORLD: '&cParameter specified is not a world or a number.'
 PLAYERS-ONLY: '&cOnly players can use the radius functionality.'
+CONSOLE-ONLY: '&cThis functionality can only be used from console.'
 NO-ONE-ONLINE: '&7Could not find any players online.'
 # This message is sent only if 'give-rewards-to-sender' is disabled (in config.yml)
 ONLY-YOU-ONLINE: '&7You are the only player we could find.'
@@ -23,9 +28,12 @@ XP-RECEIVED:
   LEVELS: '&3You have received &a%amount%&3 xp levels.'
   XP: '&3You have received &a%amount%&3 xp points.'
 
+ITEM-SAVED: '&aThe item was saved successfully with the name: %name%'
+ITEM-REMOVED: '&aThe item with the name %name% was successfully removed.'
 ITEMS-SENT: '&aYou have given everyone: &3%amount% &ax&3 %material%&a.'
 ITEMS-SENT-WORLD: '&aYou have given everyone in &3%world%&a: &3%amount% &ax&3 %material%&a.'
 ITEMS-SENT-RADIUS: '&aYou have given everyone in a &3%radius% blocks&a radius: &3%amount% &ax&3 %material%&a.'
+ITEMS-SENT-CONSOLE-RADIUS: "&aYou have given everyone in a &3%radius% blocks&a radius from &e%x% %y% %z% %world%&a : &3%amount% &ax&3 %material%&a."
 MONEY-SENT: '&aYou have given everyone &3$%amount%&a.'
 MONEY-SENT-WORLD: '&aYou have given everyone in &3%world%&a: &3$%amount%&a.'
 MONEY-SENT-RADIUS: '&aYou have given everyone in a &3%radius% blocks&a radius: &3$%amount%&a.'
