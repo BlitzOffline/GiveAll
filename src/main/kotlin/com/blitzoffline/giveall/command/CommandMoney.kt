@@ -2,7 +2,7 @@ package com.blitzoffline.giveall.command
 
 import com.blitzoffline.giveall.GiveAll
 import com.blitzoffline.giveall.util.calculateBoundingBox
-import com.blitzoffline.giveall.util.msg
+import com.blitzoffline.giveall.extension.msg
 import dev.triumphteam.cmd.bukkit.annotation.Permission
 import dev.triumphteam.cmd.core.BaseCommand
 import dev.triumphteam.cmd.core.annotation.Command
@@ -18,21 +18,18 @@ class CommandMoney(private val plugin: GiveAll) : BaseCommand() {
     @SubCommand("money")
     @Permission("giveall.use.money")
     fun money(sender: CommandSender, amount: Int, @Suggestion("worlds") @Optional argument: String?) {
-        val settings = plugin.settings
-        val messages = plugin.messages
-
         if (amount == null || amount <= 0) {
-            messages.node("AMOUNT-ZERO").getString("&cYou can not send \$0.").msg(sender)
+            plugin.settingsManager.messages.amountZero.msg(sender)
             return
         }
 
         if (argument != null && argument.toDoubleOrNull() == null && Bukkit.getWorld(argument) == null) {
-            messages.node("WRONG-RADIUS-OR-WORLD").getString("&cParameter specified is not a world or a number.").msg(sender)
+            plugin.settingsManager.messages.wrongRadiusOrWorld.msg(sender)
             return
         }
 
         if (argument != null && argument.toDoubleOrNull() != null && sender !is Player) {
-            messages.node("PLAYERS-ONLY").getString("&cOnly players can use the radius functionality.").msg(sender)
+            plugin.settingsManager.messages.playersOnly.msg(sender)
             return
         }
 
@@ -50,7 +47,7 @@ class CommandMoney(private val plugin: GiveAll) : BaseCommand() {
             }
             else -> {
                 val world = Bukkit.getServer().getWorld(argument) ?: run {
-                    messages.node("WRONG-WORLD").getString("&cCould not find the world you specified.").msg(sender)
+                    plugin.settingsManager.messages.wrongWorld.msg(sender)
                     return
                 }
                 players = world.players
@@ -59,39 +56,39 @@ class CommandMoney(private val plugin: GiveAll) : BaseCommand() {
         }
 
         if (players.isEmpty()) {
-            messages.node("NO-ONE-ONLINE").getString("&7Could not find any players online.").msg(sender)
+            plugin.settingsManager.messages.noPlayers.msg(sender)
             return
         }
 
-        if (!settings.node("give-rewards-to-sender").getBoolean(false) && players.contains(sender) && players.size == 1) {
-            messages.node("ONLY-YOU-ONLINE").getString("&7You are the only player we could find.").msg(sender)
+        if (!plugin.settingsManager.settings.giveRewardsToSender && players.contains(sender) && players.size == 1) {
+            plugin.settingsManager.messages.onlyYou.msg(sender)
             return
         }
 
         for (player in players) {
-            if (!settings.node("give-rewards-to-sender").getBoolean(false) && player == sender) continue
-            if (!settings.node("requires-permission").getBoolean(false) && !player.hasPermission("giveall.receive")) continue
+            if (!plugin.settingsManager.settings.giveRewardsToSender && player == sender) continue
+            if (!plugin.settingsManager.settings.requirePermission && !player.hasPermission("giveall.receive")) continue
             plugin.econ.depositPlayer(player, amount.toDouble())
-            messages.node("MONEY-RECEIVED").getString("&3You have received &a\$%amount%&3.")
+            plugin.settingsManager.messages.moneyReceived
                 .replace("%amount%", amount.toString())
                 .msg(player)
         }
 
         when {
             checkWorld -> {
-                messages.node("MONEY-SENT-WORLD").getString("&aYou have given everyone in &3%world%&a: &3\$%amount%&a.")
+                plugin.settingsManager.messages.moneySentWorld
                     .replace("%amount%", amount.toString())
                     .replace("%world%", argument.toString())
                     .msg(sender)
             }
             checkRadius -> {
-                messages.node("MONEY-SENT-RADIUS").getString("&aYou have given everyone in a &3%radius% blocks&a radius: &3\$%amount%&a.")
+                plugin.settingsManager.messages.moneySentRadius
                     .replace("%amount%", amount.toString())
                     .replace("%radius%", argument.toString())
                     .msg(sender)
             }
             else -> {
-                messages.node("MONEY-SENT").getString("&aYou have given everyone &3\$%amount%&a.")
+                plugin.settingsManager.messages.moneySent
                     .replace("%amount%", amount.toString())
                     .msg(sender)
             }

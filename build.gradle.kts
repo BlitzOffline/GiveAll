@@ -20,7 +20,10 @@ repositories {
 dependencies {
     implementation("dev.triumphteam:triumph-cmd-bukkit:2.0.0-SNAPSHOT")
     implementation("org.spongepowered:configurate-yaml:4.1.2")
+    implementation("org.spongepowered:configurate-hocon:4.1.2")
+    implementation("org.spongepowered:configurate-extra-kotlin:4.1.2")
     implementation("net.kyori:adventure-api:4.11.0")
+    implementation("net.kyori:adventure-text-minimessage:4.11.0")
     implementation("net.kyori:adventure-platform-bukkit:4.1.1")
 
     compileOnly("me.clip:placeholderapi:2.11.2")
@@ -49,7 +52,7 @@ tasks {
             relocate("kotlin", "com.blitzoffline.giveall.libs.kotlin")
             relocate("dev.triumphteam.cmd", "com.blitzoffline.giveall.libs.commands")
             relocate("org.spongepowered.configurate", "com.blitzoffline.giveall.libs.configurate")
-            relocate("net.kyori", "com.blitzoffline.giveall.libs.adventure")
+            relocate("net.kyori", "com.blitzoffline.giveall.libs.kyori")
             archiveFileName.set("GiveAll-${project.version}.jar")
         }
     }

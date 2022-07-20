@@ -13,11 +13,11 @@ import com.blitzoffline.giveall.command.CommandWorld
 import com.blitzoffline.giveall.command.CommandXp
 import com.blitzoffline.giveall.database.Database
 import com.blitzoffline.giveall.database.GsonDatabase
+import com.blitzoffline.giveall.extension.adventure
+import com.blitzoffline.giveall.extension.msg
 import com.blitzoffline.giveall.manager.SavedItemsManager
 import com.blitzoffline.giveall.settings.SettingsManager
 import com.blitzoffline.giveall.task.SaveDataTask
-import com.blitzoffline.giveall.util.adventure
-import com.blitzoffline.giveall.util.msg
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey
 import dev.triumphteam.cmd.core.BaseCommand
@@ -31,15 +31,11 @@ import org.bukkit.World
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitTask
-import org.spongepowered.configurate.CommentedConfigurationNode
 
 // TODO: 3/6/22 Refactor the settings and messages
 class GiveAll : JavaPlugin() {
-    lateinit var settings: CommentedConfigurationNode
+    lateinit var settingsManager: SettingsManager
         private set
-    lateinit var messages: CommentedConfigurationNode
-        private set
-
     lateinit var database: Database
         private set
     lateinit var savedItemsManager: SavedItemsManager
@@ -49,31 +45,29 @@ class GiveAll : JavaPlugin() {
     private var hooked = false
 
     private lateinit var commandManager: BukkitCommandManager<CommandSender>
-    private lateinit var settingsManager: SettingsManager
     private lateinit var saveData: BukkitTask
 
     override fun onEnable() {
         adventure = BukkitAudiences.create(this)
 
-        settingsManager = SettingsManager(this, dataFolder)
-        loadSettings()
+        settingsManager = SettingsManager(dataFolder, this)
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
             logger.warning("Could not find PlaceholderAPI! This plugin is required!")
             pluginLoader.disablePlugin(this)
         }
 
-        val hooksNode = settings.node("hooks")
-
-        if (hooksNode.node("vault").getBoolean(true)) {
+        if (settingsManager.settings.vaultHook) {
             val vault = Bukkit.getPluginManager().getPlugin("Vault")
+
             if (vault == null) {
-                logger.warning("Could not find Vault! If you don't want to use it, disable the hook from config.yml!")
+                logger.warning("Could not find Vault! If you don't want to use it, disable the hook from settings.conf!")
                 pluginLoader.disablePlugin(this)
                 return
             }
+
             if (!vault.isEnabled) {
-                logger.warning("Vault is disabled! If you don't want to use it, disable the hook from config.yml!")
+                logger.warning("Vault is disabled! If you don't want to use it, disable the hook from settings.conf!")
                 pluginLoader.disablePlugin(this)
                 return
             }
@@ -119,7 +113,7 @@ class GiveAll : JavaPlugin() {
 
     override fun onDisable() {
         if(::saveData.isInitialized && !saveData.isCancelled) saveData.cancel()
-        database.saveItemStacks(savedItemsManager.clone())
+        if(::database.isInitialized) database.saveItemStacks(savedItemsManager.clone())
 
         logger.info("Plugin disabled successfully!")
     }
@@ -128,12 +122,6 @@ class GiveAll : JavaPlugin() {
         if (dataFolder.resolve(fileName).exists()) return
         saveResource(fileName, false)
     }
-
-    fun loadSettings() {
-        settings = settingsManager.loadSettings("config.yml")
-        messages = settingsManager.loadSettings("messages.yml")
-    }
-
     private fun registerTasks() {
         if(::saveData.isInitialized && !saveData.isCancelled) saveData.cancel()
         saveData = SaveDataTask(this).runTaskTimer(this, 300 * 20L, 300 * 20L)
@@ -150,61 +138,42 @@ class GiveAll : JavaPlugin() {
     }
     private fun registerMessage() {
         commandManager.registerMessage(BukkitMessageKey.NO_PERMISSION) { sender, _ ->
-            messages.node("NO-PERMISSION").getString("&cError: &7You don''t have permission to do that!").msg(sender)
+            settingsManager.messages.noPermission.msg(sender)
         }
 
         commandManager.registerMessage(BukkitMessageKey.CONSOLE_ONLY) { sender, _ ->
-            messages.node("CONSOLE-ONLY").getString("&cThis functionality can only be used from console.").msg(sender)
+            settingsManager.messages.consoleOnly.msg(sender)
         }
 
         commandManager.registerMessage(MessageKey.UNKNOWN_COMMAND) { sender, _ ->
-            messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
+            settingsManager.messages.wrongUsage.msg(sender)
         }
 
         commandManager.registerMessage(MessageKey.INVALID_ARGUMENT) { sender, context ->
             when {
-                context.argumentType == World::class.java -> {
-                    messages.node("WRONG-WORLD")
-                        .getString("&cCould not find the world you specified")
-                        .replace("%wrong-value%", context.typedArgument)
-                        .msg(sender)
-                }
+                context.argumentType == World::class.java ->
+                    settingsManager.messages.wrongWorld.msg(sender)
 
-                context.argumentType == Double::class.java && context.name == "radius" -> {
-                    messages.node("WRONG-RADIUS")
-                        .getString("&cRadius specified is not a number.")
-                        .replace("%wrong-value%", context.typedArgument)
-                        .msg(sender)
-                }
+                context.argumentType == Double::class.java && context.name == "radius" ->
+                    settingsManager.messages.wrongRadius.msg(sender)
 
                 context.argumentType == Double::class.java &&
-                        (context.name == "x" || context.name == "y" || context.name == "z") -> {
-                    messages.node("WRONG-COORDS")
-                        .getString("&cCoordinates must be numbers.")
-                        .replace("%wrong-value%", context.typedArgument)
-                        .msg(sender)
-                }
+                        (context.name == "x" || context.name == "y" || context.name == "z") ->
+                    settingsManager.messages.wrongCoords.msg(sender)
 
-                context.argumentType == Int::class.java && context.name == "amount" -> {
-                    messages.node("WRONG-AMOUNT")
-                        .getString("&cAmount must be a number.")
-                        .replace("%wrong-value%", context.typedArgument)
-                        .msg(sender)
-                }
+                context.argumentType == Int::class.java && context.name == "amount" ->
+                    settingsManager.messages.wrongAmount.msg(sender)
 
-                else -> {
-                    messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
-
-                }
+                else -> settingsManager.messages.wrongUsage.msg(sender)
             }
         }
 
         commandManager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS) { sender, _ ->
-            messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
+            settingsManager.messages.wrongUsage.msg(sender)
         }
 
         commandManager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS) { sender, _ ->
-            messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help.").msg(sender)
+            settingsManager.messages.wrongUsage.msg(sender)
         }
     }
 

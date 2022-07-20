@@ -1,7 +1,7 @@
 package com.blitzoffline.giveall.command
 
 import com.blitzoffline.giveall.GiveAll
-import com.blitzoffline.giveall.util.msg
+import com.blitzoffline.giveall.extension.msg
 import dev.triumphteam.cmd.bukkit.annotation.Permission
 import dev.triumphteam.cmd.core.BaseCommand
 import dev.triumphteam.cmd.core.annotation.Command
@@ -18,9 +18,6 @@ class CommandItem(private val plugin: GiveAll) : BaseCommand() {
     @Permission("giveall.use")
     @Suggestion("materials")
     fun item(sender: CommandSender, @Optional args: List<String>) {
-        val settings = plugin.settings
-        val messages = plugin.messages
-
         if (args.isEmpty()) {
             if (sender.hasPermission("giveall.help")) {
                 "&7---- &6GiveAll by BlitzOffline &7----".msg(sender)
@@ -36,7 +33,7 @@ class CommandItem(private val plugin: GiveAll) : BaseCommand() {
                 "&7/giveall hand [world/radius] &8-&f give the items you hold in your hand to all players".msg(sender)
                 "&7/giveall money <amount> [world/radius] &8-&f give money to all players".msg(sender)
             } else {
-                messages.node("WRONG-USAGE").getString("&cWrong usage! Use: &e/giveall help&c to get help").msg(sender)
+                plugin.settingsManager.messages.wrongUsage.msg(sender)
             }
             return
         }
@@ -44,32 +41,30 @@ class CommandItem(private val plugin: GiveAll) : BaseCommand() {
         val item = plugin.savedItemsManager.getSavedItemOrMaterial(
             args[0],
             if (args.size >= 2 && args[1].toIntOrNull() != null) args[1].toInt() else -1
-        ) ?: return messages.node("WRONG-MATERIAL")
-            .getString("&cCould not find the material you specified.")
-            .msg(sender)
+        ) ?: return plugin.settingsManager.messages.wrongMaterial.msg(sender)
 
         val players = getServer().onlinePlayers
         if (players.isEmpty()) {
-            messages.node("NO-ONE-ONLINE").getString("&7Could not find any players online.").msg(sender)
+            plugin.settingsManager.messages.noPlayers.msg(sender)
             return
         }
 
-        if (sender is Player && players.size == 1 && !settings.node("give-rewards-to-sender").getBoolean(false)) {
-            messages.node("ONLY-YOU-ONLINE").getString("&7You are the only player we could find.").msg(sender)
+        if (sender is Player && players.size == 1 && !plugin.settingsManager.settings.giveRewardsToSender) {
+            plugin.settingsManager.messages.onlyYou.msg(sender)
             return
         }
 
         for (player in players) {
-            if (!settings.node("give-rewards-to-sender").getBoolean(false) && player == sender) continue
-            if (settings.node("requires-permission").getBoolean(false) && !player.hasPermission("giveall.receive")) continue
+            if (!plugin.settingsManager.settings.giveRewardsToSender && player == sender) continue
+            if (plugin.settingsManager.settings.requirePermission && !player.hasPermission("giveall.receive")) continue
             player.inventory.addItem(item.clone())
-            messages.node("ITEMS-RECEIVED").getString("&3You have received &a%amount% &3x&a %material%&3.")
+            plugin.settingsManager.messages.itemsReceived
                 .replace("%amount%", item.amount.toString())
                 .replace("%material%", args[0].lowercase())
                 .msg(player)
-            if (player.inventory.firstEmpty() == -1) messages.node("INVENTORY-FULL").getString("&cYour inventory is full!!").msg(player)
+            if (player.inventory.firstEmpty() == -1) plugin.settingsManager.messages.inventoryFull.msg(player)
         }
-        messages.node("ITEMS-SENT").getString("&aYou have given everyone: &3%amount% &ax&3 %material%&a.")
+        plugin.settingsManager.messages.itemsSent
             .replace("%amount%", item.amount.toString())
             .replace("%material%", args[0].lowercase())
             .msg(sender)

@@ -1,8 +1,8 @@
 package com.blitzoffline.giveall.command
 
 import com.blitzoffline.giveall.GiveAll
-import com.blitzoffline.giveall.util.isValidName
-import com.blitzoffline.giveall.util.msg
+import com.blitzoffline.giveall.extension.isValidName
+import com.blitzoffline.giveall.extension.msg
 import dev.triumphteam.cmd.bukkit.annotation.Permission
 import dev.triumphteam.cmd.core.BaseCommand
 import dev.triumphteam.cmd.core.annotation.Command
@@ -18,16 +18,14 @@ class CommandSaveItem(private val plugin: GiveAll) : BaseCommand() {
     @Permission("giveall.use.save-item")
     fun saveItem(sender: Player, name: String, @Optional force: String?) {
         if (Material.matchMaterial(name) != null) {
-            plugin.messages.node("NAME-MATERIAL")
-                .getString("&cSaved item name cannot be a material's name.")
+            plugin.settingsManager.messages.nameMaterial
                 .replace("%wrong-value%", name)
                 .msg(sender)
             return
         }
 
         if (!name.isValidName()) {
-            plugin.messages.node("NAME-ALPHANUMERICAL")
-                .getString("&cSaved item name can only contain letters, digits, underscores and hyphens.")
+            plugin.settingsManager.messages.nameAlphanumerical
                 .replace("%wrong-value%", name)
                 .msg(sender)
             return
@@ -39,10 +37,8 @@ class CommandSaveItem(private val plugin: GiveAll) : BaseCommand() {
         }
 
         if (plugin.savedItemsManager.contains(name)) {
-            plugin.messages.node("ITEM-EXISTS")
-                .getString(
-                    "&cAn item named %name% already exists. Use \"&e/giveall save-item %name% force&c\" to force its replacement."
-                ).replace("%name%", name)
+            plugin.settingsManager.messages.itemExists
+                .replace("%name%", name)
                 .msg(sender)
             return
         }
@@ -52,13 +48,12 @@ class CommandSaveItem(private val plugin: GiveAll) : BaseCommand() {
     private fun handleItemSaving(player: Player, name: String) {
         val item = player.inventory.itemInMainHand.clone()
         if (item.type.isAir) {
-            plugin.messages.node("ITEM-AIR").getString("&cItem cannot be air.").msg(player)
+            plugin.settingsManager.messages.itemAir.msg(player)
             return
         }
 
         plugin.savedItemsManager.addItemStack(name, item.clone(), true)
-        plugin.messages.node("ITEM-SAVED")
-            .getString("&aThe item was saved successfully with the name: %name%")
+        plugin.settingsManager.messages.itemSaved
             .replace("%name%", name)
             .msg(player)
     }

@@ -1,6 +1,6 @@
 package com.blitzoffline.giveall.command
 
-import com.blitzoffline.giveall.util.msg
+import com.blitzoffline.giveall.extension.msg
 import dev.triumphteam.cmd.bukkit.annotation.Permission
 import dev.triumphteam.cmd.core.BaseCommand
 import dev.triumphteam.cmd.core.annotation.Command
