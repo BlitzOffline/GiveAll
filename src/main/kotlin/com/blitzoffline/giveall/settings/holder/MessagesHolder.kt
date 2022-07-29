@@ -28,7 +28,7 @@ data class MessagesHolder(
 
     val itemSaved: String = "<green>The item was successfully saved with the name: %name%",
     val itemRemoved: String = "<green>The item with the name %name% was successfully removed",
-    val invalidItem: String = "<red>There is no item saved with this name.",
+    val itemInvalid: String = "<red>There is no item saved with this name.",
     val itemExists: String = "<red>An item named %name% already exists. Use: <yellow>/giveall save-item %name% force <red>to force its replacement.",
 
     val itemsReceived: String = "<dark_blue>You have received <green>%amount% <dark_blue>x <green>%material%<dark_blue>.",
@@ -62,4 +62,18 @@ data class MessagesHolder(
     = "<green>You have given everyone in a <dark_blue>%radius% blocks <green>radius: <dark_blue>%amount% <green>xp levels.",
     val xpPointsSentRadius: String
     = "<green>You have given everyone in a <dark_blue>%radius% blocks <green>radius: <dark_blue>%amount% <green>xp points.",
+    val help: List<String> = listOf(
+        "<gray>---- <gold>GiveAll by BlitzOffline <gray>----",
+        "",
+        "<gray>/giveall help <dark_gray>-<white> show this help menu",
+        "<gray>/giveall reload <dark_gray>-<white> reload the configuration",
+        "<gray>/giveall <material> [amount] <dark_gray>-<white> give items to all players",
+        "<gray>/giveall world <world> <material> [amount] <dark_gray>-<white> give items to all players in a world",
+        "<gray>/giveall radius <radius> <material> [amount] <dark_gray>-<white> give items to all players in a radius",
+        "<gray>/giveall console-radius <radius> <material> <x> <y> <z> <world-name> [amount] <dark_gray>-<white> give items to all players in a radius",
+        "<gray>/giveall save-item <name> [force] <dark_gray>-<white> save an item to be able to give it later.",
+        "<gray>/giveall remove-saved-item <name> <dark_gray>-<white> remove a saved item.",
+        "<gray>/giveall hand [world/radius] <dark_gray>-<white> give the items you hold in your hand to all players",
+        "<gray>/giveall money <amount> [world/radius] <dark_gray>-<white> give money to all players"
+    )
 )
