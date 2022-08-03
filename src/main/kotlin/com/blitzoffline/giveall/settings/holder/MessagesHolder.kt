@@ -5,75 +5,64 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable
 @ConfigSerializable
 data class MessagesHolder(
     val inventoryFull: String = "<red>Your inventory is full!!",
-    val playersOnly: String = "<red>This functionality can only be used by a player.",
-    val consoleOnly: String = "<red>This functionality can only be used from console.",
-    val noPlayers: String = "<red>Could not find any players.",
-    val onlyYou: String = "<red>You are the only player we could find.",
+    val noPlayers: String = "<red>Could not find any players!",
 
     val itemAir: String = "<red>Item cannot be air.",
     val nameMaterial: String = "<red>Name cannot be a material.",
     val nameAlphanumerical: String = "<red>Name can only contain letters, digits, underscores and hyphens.",
-    val amountZero: String = "<red>You can not send $0.",
-    val xpZero: String = "<red>You can not send 0 xp.",
-    val wrongCoords: String = "<red>Coordinates must be numbers.",
-    val wrongAmount: String = "<red>Amount must be a number.",
     val wrongWorld: String = "<red>Could not find the world you specified.",
     val wrongMaterial: String = "<red>Could not find the material you specified.",
-    val wrongRadius: String = "<red>Radius specified is not a number.",
-    val wrongRadiusOrWorld: String = "<red>Parameter specified is not a world or a number.",
-    val wrongUsage: String = "<red>Wrong Usage! Use: <yellow>/giveall help<red> to get help.",
 
-    val noPermission: String = "<red> Error: <gray>You don't have permission to do that!",
     val configReloaded: String = "<gray>Config reloaded successfully.",
 
-    val itemSaved: String = "<green>The item was successfully saved with the name: %name%",
-    val itemRemoved: String = "<green>The item with the name %name% was successfully removed",
+    val itemSaved: String = "<green>The item was successfully saved with the name: <name>",
+    val itemRemoved: String = "<green>The item with the name <name> was successfully removed",
     val itemInvalid: String = "<red>There is no item saved with this name.",
-    val itemExists: String = "<red>An item named %name% already exists. Use: <yellow>/giveall save-item %name% force <red>to force its replacement.",
+    val itemExists: String = "<red>An item named <name> already exists. Use: <yellow>/giveall special-item save <name> force <red>to force its replacement.",
 
-    val itemsReceived: String = "<dark_blue>You have received <green>%amount% <dark_blue>x <green>%material%<dark_blue>.",
-    val moneyReceived: String = "<dark_blue>You have received <green>$%amount%<dark_blue>.",
-    val xpLevelsReceived: String = "<dark_blue>You have received <green>%amount%<dark_blue> xp levels.",
-    val xpPointsReceived: String = "<dark_blue>You have received <green>%amount%<dark_blue> xp points.",
+    val itemsReceived: String = "<dark_aqua>You have received <green><amount> <dark_aqua>x <green><material><dark_aqua>.",
+    val moneyReceived: String = "<dark_aqua>You have received <green>$<amount><dark_aqua>.",
+    val xpLevelsReceived: String = "<dark_aqua>You have received <green><amount><dark_aqua> xp levels.",
+    val xpPointsReceived: String = "<dark_aqua>You have received <green><amount><dark_aqua> xp points.",
 
-    val itemsSent: String = "<green>You have given everyone: <dark_blue>%amount% <green>x <dark_blue>%material%<green.>",
-    val itemsSentWorld: String
-    = "<green>You have given everyone in <dark_blue>%world%<green>: <dark_blue>%amount% <green>x " +
-            "<dark_blue>%material%<green>.",
-    val itemsSentRadius: String
-    = "<green>You have given everyone in a <dark_blue>%radius% blocks <green>radius: <dark_blue>%amount% <green>x " +
-            "<dark_blue>%material%<green>.",
-    val itemsSentConsoleRadius: String
-    = "<green>You have given everyone in a <dark_blue>%radius% blocks <green> radius from <dark_blue>%x% %y% %z% " +
-            "%world%<green>: <dark_blue>%amount% <green>x <dark_blue>%material%<green>.",
+    val itemsSent: String = "<green>You have given <count> players: <dark_aqua><amount> <green>x <dark_aqua><material><green.>",
+    val moneySent: String = "<green>You have given <count> players: <dark_aqua>$<amount><green>.",
+    val xpLevelsSent: String = "<green>You have given <count> players: <dark_aqua><amount> <green>xp levels.",
+    val xpPointsSent: String = "<green>You have given <count> players: <dark_aqua><amount> <green>xp points.",
 
-    val moneySent: String = "<green>You have given everyone <dark_blue>$%amount%<green>.",
-    val moneySentWorld: String = "<green>You have given everyone in <dark_blue>%world%<green>: <dark_blue>$%amount%<green>.",
-    val moneySentRadius: String
-    = "<green>You have given everyone in a <dark_blue>%radius% blocks <green>radius: <dark_blue>$%amount%<green>.",
-
-    val xpLevelsSent: String = "<green>You have given everyone: <dark_green>%amount% <green>xp levels.",
-    val xpPointsSent: String = "<green>You have given everyone: <dark_green>%amount% <green>xp points.",
-    val xpLevelsSentWorld: String
-    = "<green>You have given everyone in <dark_blue>%world%<green>: <dark_blue>%amount% <green>xp levels.",
-    val xpPointsSentWorld: String
-    = "<green>You have given everyone in <dark_blue>%world%<green>: <dark_blue>%amount% <green>xp points.",
-    val xpLevelsSentRadius: String
-    = "<green>You have given everyone in a <dark_blue>%radius% blocks <green>radius: <dark_blue>%amount% <green>xp levels.",
-    val xpPointsSentRadius: String
-    = "<green>You have given everyone in a <dark_blue>%radius% blocks <green>radius: <dark_blue>%amount% <green>xp points.",
     val help: List<String> = listOf(
         "<gray>---- <gold>GiveAll by BlitzOffline <gray>----",
         "",
-        "<gray>/giveall help <dark_gray>-<white> show this help menu",
-        "<gray>/giveall reload <dark_gray>-<white> reload the configuration",
-        "<gray>/giveall <material> [amount] <dark_gray>-<white> give items to all players",
-        "<gray>/giveall world <world> <material> [amount] <dark_gray>-<white> give items to all players in a world",
-        "<gray>/giveall radius <radius> <material> [amount] <dark_gray>-<white> give items to all players in a radius",
-        "<gray>/giveall console-radius <radius> <material> <x> <y> <z> <world-name> [amount] <dark_gray>-<white> give items to all players in a radius",
-        "<gray>/giveall save-item <name> [force] <dark_gray>-<white> save an item to be able to give it later.",
-        "<gray>/giveall remove-saved-item <name> <dark_gray>-<white> remove a saved item.",
-        "<gray>/giveall hand [world/radius] <dark_gray>-<white> give the items you hold in your hand to all players",
-        "<gray>/giveall money <amount> [world/radius] <dark_gray>-<white> give money to all players"
+        "<yellow>Available Commands:",
+        "",
+        "<gray>/giveall <dark_gray>- <white>list help commands",
+        "<gray>/giveall help <dark_gray>- <white>list help commands",
+        "<gray>/giveall reload <dark_gray>- <white>reload settings and messages",
+        "",
+        "<gray>/giveall material <material> [amount] <dark_gray>- <white>give everyone online the item specified",
+        "<gray>/giveall hand [amount] <dark_gray>- <white>give everyone online the item you are holding in your hand",
+        "<gray>/giveall xp <amount> [\"levels\"] <dark_gray>- <white>give everyone online exp points",
+        "<gray>/giveall money <amount> <dark_gray>- <white>give everyone online money",
+        "",
+        "<gray>/giveall world <world> material <material> [amount] <dark_gray>- <white>give everyone in specified world the item specified",
+        "<gray>/giveall world <world> hand [amount] <dark_gray>- <white>give everyone in specified world the item you are holding in your hand",
+        "<gray>/giveall world <world> xp <amount> [\"levels\"] <dark_gray>- <white>give everyone in specified world exp points",
+        "<gray>/giveall world <world> money <amount> <dark_gray>- <white>give everyone in specified world money",
+        "",
+        "<gray>/giveall radius <radius> world <world> center <x> <y> <z> material <material> [amount] <dark_gray>- <white>give everyone in specified world in specified radius from coordinates the item specified",
+        "<gray>/giveall radius <radius> world <world> center <x> <y> <z> hand [amount] <dark_gray>- <white>give everyone in specified world in specified radius from coordinates the item you are holding in your hand",
+        "<gray>/giveall radius <radius> world <world> center <x> <y> <z> xp <amount> [\"levels\"] <dark_gray>- <white>give everyone in specified world in specified radius from coordinates exp points",
+        "<gray>/giveall radius <radius> world <world> center <x> <y> <z> money <amount> <dark_gray>- <white>give everyone in specified world in specified radius from coordinates money",
+        "",
+        "<gray>/giveall radius <radius> material <material> [amount] <dark_gray>- <white>give everyone in specified radius from you the item specified",
+        "<gray>/giveall radius <radius> hand [amount] <dark_gray>- <white>give everyone in specified radius from you the item you are holding in your hand",
+        "<gray>/giveall radius <radius> xp <amount> [\"levels\"] <dark_gray>- <white>give everyone in specified radius from you exp points",
+        "<gray>/giveall radius <radius> money <amount> <dark_gray>- <white>give everyone in specified radius from you money",
+        "",
+        "<gray>/giveall special-item save <name> [\"force\"] <dark_gray>- <white>save the item you're holding in the database under the specified name",
+        "<gray>/giveall special-item remove <name> <dark_gray>- <white>remove the item that was saved in the database under the specified name",
+        "",
+        "<yellow>Parameters inside [] are optional, Parameters inside <> are required.",
+        "<gold>Materials can also be special items that you saved to the database."
     )
 )

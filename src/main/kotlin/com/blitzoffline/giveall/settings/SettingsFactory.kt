@@ -3,11 +3,9 @@ package com.blitzoffline.giveall.settings
 import com.blitzoffline.giveall.GiveAll
 import com.blitzoffline.giveall.settings.holder.MessagesHolder
 import com.blitzoffline.giveall.settings.holder.SettingsHolder
-import com.blitzoffline.giveall.settings.mapper.MMComponentMapper
 import java.io.File
 import java.io.IOException
 import java.util.Objects
-import net.kyori.adventure.text.Component
 import org.spongepowered.configurate.ConfigurationOptions
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader
 
@@ -54,10 +52,10 @@ class SettingsFactory(private val dataFolder: File, private val plugin: GiveAll)
 
     private fun loader(file: File): HoconConfigurationLoader {
         return HoconConfigurationLoader.builder()
+            .prettyPrinting(true)
             .file(file)
             .defaultOptions { options: ConfigurationOptions ->
                 options.shouldCopyDefaults(true)
-                    .serializers { it.register(Component::class.java, MMComponentMapper()) }
             }
             .build()
     }
