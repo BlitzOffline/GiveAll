@@ -3,30 +3,34 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("org.jetbrains.kotlin.jvm") version "1.6.10"
+    kotlin("jvm") version "1.7.10"
 }
 
 group = "com.blitzoffline"
-version = "0.0.7-Snapshot"
+version = "1.0.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
     maven { url = uri("https://repo.triumphteam.dev/snapshots/") }
+    maven { url = uri("https://repo.codemc.org/repository/maven-public/") }
     maven { url = uri("https://papermc.io/repo/repository/maven-public/") }
     maven { url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/") }
+    maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots") }
 }
 
 dependencies {
-    implementation("dev.triumphteam:triumph-cmd-bukkit:2.0.0-SNAPSHOT")
-    implementation("org.spongepowered:configurate-yaml:4.1.2")
-    implementation("net.kyori:adventure-api:4.10.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.1.0")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
+    implementation("dev.jorel:commandapi-shade:8.5.1-SNAPSHOT")
+    implementation("org.spongepowered:configurate-hocon:4.1.2")
+    implementation("org.spongepowered:configurate-extra-kotlin:4.1.2")
+    implementation("net.kyori:adventure-api:4.11.0")
+    implementation("net.kyori:adventure-text-serializer-plain:4.11.0")
+    implementation("net.kyori:adventure-text-minimessage:4.11.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.1.2")
 
-    compileOnly("me.clip:placeholderapi:2.11.1")
+    compileOnly("me.clip:placeholderapi:2.11.2")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.19-R0.1-SNAPSHOT")
 }
 
 java {
@@ -42,15 +46,15 @@ tasks {
         }
 
         kotlinOptions {
-            jvmTarget = "11"
+            jvmTarget = "17"
             javaParameters = true
         }
 
         withType<ShadowJar> {
             relocate("kotlin", "com.blitzoffline.giveall.libs.kotlin")
-            relocate("dev.triumphteam.cmd", "com.blitzoffline.giveall.libs.commands")
+            relocate("dev.jorel.commandapi", "com.blitzoffline.giveall.libs.commandapi")
             relocate("org.spongepowered.configurate", "com.blitzoffline.giveall.libs.configurate")
-            relocate("net.kyori", "com.blitzoffline.giveall.libs.adventure")
+            relocate("net.kyori", "com.blitzoffline.giveall.libs.kyori")
             archiveFileName.set("GiveAll-${project.version}.jar")
         }
     }

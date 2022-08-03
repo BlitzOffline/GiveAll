@@ -1,8 +1,8 @@
 package com.blitzoffline.giveall.database
 
-import org.bukkit.inventory.ItemStack
+import com.blitzoffline.giveall.item.SavedItem
 
 interface Database {
-    fun loadItemStacks(): Map<String, ItemStack>
-    fun saveItemStacks(map: Map<String, ItemStack>)
+    fun loadItems(): Map<String, SavedItem>
+    fun saveItems(map: Map<String, SavedItem>)
 }
