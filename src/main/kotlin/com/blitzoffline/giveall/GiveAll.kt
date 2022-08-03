@@ -81,10 +81,11 @@ class GiveAll : JavaPlugin() {
     }
 
     override fun onDisable() {
+        CommandAPI.onDisable()
+
         if(::saveData.isInitialized && !saveData.isCancelled) saveData.cancel()
         if(::database.isInitialized) database.saveItems(savedItemsManager.clone())
 
-        CommandAPI.onDisable()
         logger.info("Plugin disabled successfully!")
     }
 

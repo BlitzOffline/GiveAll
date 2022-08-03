@@ -19,6 +19,8 @@ data class MessagesHolder(
     val itemRemoved: String = "<green>The item with the name <name> was successfully removed",
     val itemInvalid: String = "<red>There is no item saved with this name.",
     val itemExists: String = "<red>An item named <name> already exists. Use: <yellow>/giveall special-item save <name> force <red>to force its replacement.",
+    val itemListEmpty: String = "<red>There are no items saved.",
+    val itemListPageInvalid: String = "<red>The page you specified is invalid. Max page: <max>",
 
     val itemsReceived: String = "<dark_aqua>You have received <green><amount> <dark_aqua>x <green><material><dark_aqua>.",
     val moneyReceived: String = "<dark_aqua>You have received <green>$<amount><dark_aqua>.",

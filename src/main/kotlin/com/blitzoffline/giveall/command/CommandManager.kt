@@ -15,6 +15,7 @@ import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.arguments.TextArgument
 import dev.jorel.commandapi.executors.CommandExecutor
 import dev.jorel.commandapi.executors.PlayerCommandExecutor
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -59,7 +60,9 @@ class CommandManager(private val plugin: GiveAll) {
 
                 createSpecialItemSaveCommand(),
                 createSpecialItemSaveWithForceCommand(),
-                createSpecialItemRemoveCommand()
+                createSpecialItemRemoveCommand(),
+                createSpecialItemListCommand(),
+                createSpecialItemListWithPageCommand()
             )
 
         if (!vault) {
@@ -1144,6 +1147,59 @@ class CommandManager(private val plugin: GiveAll) {
             )
         })
 
+    // Any
+    private fun createSpecialItemListCommand() = CommandAPICommand("special-item")
+        .withRequirement { sender ->
+            SPECIAL_ITEM_PERMISSIONS.any { sender.hasPermission(it) }
+        }
+        .withArguments(
+            MultiLiteralArgument("list")
+                .withPermission(SPECIAL_ITEM_LIST_PERMISSION),
+        )
+        .executes(CommandExecutor { sender: CommandSender, _: Array<Any?> ->
+            if (plugin.savedItemsManager.getPageCount() < 1) {
+                sendMessage(sender, plugin.settingsManager.messages.itemListEmpty)
+                return@CommandExecutor
+            }
+
+            sendMessage(
+                sender,
+                plugin.savedItemsManager.getFullPageDisplay(1)
+            )
+        })
+
+    // Any
+    private fun createSpecialItemListWithPageCommand() = CommandAPICommand("special-item")
+        .withRequirement { sender ->
+            SPECIAL_ITEM_PERMISSIONS.any { sender.hasPermission(it) }
+        }
+        .withArguments(
+            MultiLiteralArgument("list")
+                .withPermission(SPECIAL_ITEM_LIST_PERMISSION),
+            IntegerArgument("page", 1)
+        )
+        .executes(CommandExecutor { sender: CommandSender, args: Array<Any?> ->
+            if (plugin.savedItemsManager.getPageCount() < 1) {
+                sendMessage(sender, plugin.settingsManager.messages.itemListEmpty)
+                return@CommandExecutor
+            }
+
+            val page = args[1] as Int
+            if (page > plugin.savedItemsManager.getPageCount()) {
+                sendMessage(
+                    sender,
+                    plugin.settingsManager.messages.itemListPageInvalid,
+                    Placeholder.unparsed("max", plugin.savedItemsManager.getPageCount().toString())
+                )
+                return@CommandExecutor
+            }
+
+            sendMessage(
+                sender,
+                plugin.savedItemsManager.getFullPageDisplay(page)
+            )
+        })
+
     private fun handleItemSaving(player: Player, name: String, displayName: String) {
         val item = player.inventory.itemInMainHand.clone()
         if (item.type.isAir) return sendMessage(
@@ -1187,6 +1243,7 @@ class CommandManager(private val plugin: GiveAll) {
 
         const val SPECIAL_ITEM_SAVE_PERMISSION = "$BASE_PERMISSION.use.special-item.save"
         const val SPECIAL_ITEM_REMOVE_PERMISSION = "$BASE_PERMISSION.use.special-item.remove"
+        const val SPECIAL_ITEM_LIST_PERMISSION = "$BASE_PERMISSION.use.special-item.list"
 
         private val BASE_PERMISSIONS = listOf(
             BASE_MATERIAL_PERMISSION,
@@ -1218,7 +1275,8 @@ class CommandManager(private val plugin: GiveAll) {
 
         private val SPECIAL_ITEM_PERMISSIONS = listOf(
             SPECIAL_ITEM_SAVE_PERMISSION,
-            SPECIAL_ITEM_REMOVE_PERMISSION
+            SPECIAL_ITEM_REMOVE_PERMISSION,
+            SPECIAL_ITEM_LIST_PERMISSION
         )
 
         private val ALL_PERMISSIONS = listOf(
