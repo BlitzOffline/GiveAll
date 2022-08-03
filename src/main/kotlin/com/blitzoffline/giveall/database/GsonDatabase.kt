@@ -1,14 +1,12 @@
 package com.blitzoffline.giveall.database
 
 import com.blitzoffline.giveall.GiveAll
-import com.blitzoffline.giveall.util.itemStackFromBase64
-import com.blitzoffline.giveall.util.itemStackToBase64
+import com.blitzoffline.giveall.item.SavedItem
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonIOException
 import com.google.gson.reflect.TypeToken
 import java.io.IOException
 import java.util.logging.Level
-import org.bukkit.inventory.ItemStack
 
 class GsonDatabase(private val plugin: GiveAll) : Database {
     private val gson = GsonBuilder().setPrettyPrinting().create()
@@ -20,16 +18,15 @@ class GsonDatabase(private val plugin: GiveAll) : Database {
             plugin.logger.info("Successfully created the saved-items.json file.")
     }
 
-    override fun loadItemStacks(): Map<String, ItemStack> {
+    override fun loadItems(): Map<String, SavedItem> {
         try {
             if (file.length() == 0L) return hashMapOf()
             val serializedItems: HashMap<String, String> = gson.fromJson(file.readText(), token)
 
             plugin.savedItemsManager.clear()
-            serializedItems.forEach { (name, serializedItem) ->
-                plugin.savedItemsManager.addItemStack(
-                    name = name,
-                    itemStack = itemStackFromBase64(serializedItem),
+            serializedItems.forEach { (_, serializedItem) ->
+                plugin.savedItemsManager.addItem(
+                    savedItem = SavedItem.fromBase64(serializedItem),
                     force = false
                 )
             }
@@ -40,11 +37,11 @@ class GsonDatabase(private val plugin: GiveAll) : Database {
         return plugin.savedItemsManager.clone()
     }
 
-    override fun saveItemStacks(map: Map<String, ItemStack>) {
+    override fun saveItems(map: Map<String, SavedItem>) {
         try {
             val serializedItems = hashMapOf<String, String>()
             map.forEach { (name, item) ->
-                serializedItems[name] = itemStackToBase64(item)
+                serializedItems[name] = SavedItem.toBase64(item)
             }
 
             file.writeText(gson.toJson(serializedItems))

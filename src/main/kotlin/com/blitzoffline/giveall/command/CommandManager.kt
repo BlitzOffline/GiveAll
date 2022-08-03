@@ -1,8 +1,8 @@
 package com.blitzoffline.giveall.command
 
 import com.blitzoffline.giveall.GiveAll
-import com.blitzoffline.giveall.extension.isValidName
 import com.blitzoffline.giveall.extension.sendMessage
+import com.blitzoffline.giveall.item.SavedItemsManager
 import com.blitzoffline.giveall.util.getPlayersInRadius
 import com.blitzoffline.giveall.util.handleItemGiving
 import com.blitzoffline.giveall.util.handleMoneyGiving
@@ -12,6 +12,7 @@ import dev.jorel.commandapi.arguments.DoubleArgument
 import dev.jorel.commandapi.arguments.IntegerArgument
 import dev.jorel.commandapi.arguments.MultiLiteralArgument
 import dev.jorel.commandapi.arguments.StringArgument
+import dev.jorel.commandapi.arguments.TextArgument
 import dev.jorel.commandapi.executors.CommandExecutor
 import dev.jorel.commandapi.executors.PlayerCommandExecutor
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
@@ -109,7 +110,7 @@ class CommandManager(private val plugin: GiveAll) {
             plugin.settingsManager.arguments.materialArgument
         ).executes(CommandExecutor { sender: CommandSender, args: Array<Any?> ->
             val material = args[0] as String
-            val itemStack = plugin.savedItemsManager.getSavedItemOrMaterial(material)
+            val item = plugin.savedItemsManager.getItemOrMaterial(material)
                 ?: return@CommandExecutor sendMessage(
                     sender,
                     plugin.settingsManager.messages.wrongMaterial,
@@ -119,10 +120,10 @@ class CommandManager(private val plugin: GiveAll) {
             handleItemGiving(
                 plugin,
                 sender,
-                itemStack,
+                item.itemStack,
                 Bukkit.getOnlinePlayers(),
-                Placeholder.unparsed("material", material),
-                Placeholder.unparsed("amount", itemStack.amount.toString())
+                Placeholder.parsed("material", item.displayName),
+                Placeholder.unparsed("amount", item.itemStack.amount.toString())
             )
         })
 
@@ -135,7 +136,7 @@ class CommandManager(private val plugin: GiveAll) {
         ).executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
             val material = args[0] as String
             val amount = args[1] as Int
-            val itemStack = plugin.savedItemsManager.getSavedItemOrMaterial(material, amount)
+            val item = plugin.savedItemsManager.getItemOrMaterial(material, amount)
                 ?: return@CommandExecutor sendMessage(
                     sender,
                     plugin.settingsManager.messages.wrongMaterial,
@@ -145,10 +146,10 @@ class CommandManager(private val plugin: GiveAll) {
             handleItemGiving(
                 plugin,
                 sender,
-                itemStack,
+                item.itemStack,
                 Bukkit.getOnlinePlayers(),
-                Placeholder.unparsed("material", material),
-                Placeholder.unparsed("amount", itemStack.amount.toString())
+                Placeholder.parsed("material", item.displayName),
+                Placeholder.unparsed("amount", item.itemStack.amount.toString())
             )
         })
 
@@ -267,7 +268,7 @@ class CommandManager(private val plugin: GiveAll) {
             val world = args[0] as World
             val material = args[2] as String
 
-            val itemStack = plugin.savedItemsManager.getSavedItemOrMaterial(material)
+            val item = plugin.savedItemsManager.getItemOrMaterial(material)
                 ?: return@CommandExecutor sendMessage(
                     sender,
                     plugin.settingsManager.messages.wrongMaterial,
@@ -277,10 +278,10 @@ class CommandManager(private val plugin: GiveAll) {
             handleItemGiving(
                 plugin,
                 sender,
-                itemStack,
+                item.itemStack,
                 world.players,
-                Placeholder.unparsed("material", material),
-                Placeholder.unparsed("amount", itemStack.amount.toString()),
+                Placeholder.parsed("material", item.displayName),
+                Placeholder.unparsed("amount", item.itemStack.amount.toString()),
                 Placeholder.unparsed("world", world.name)
             )
         })
@@ -299,7 +300,7 @@ class CommandManager(private val plugin: GiveAll) {
             val material = args[2] as String
             val amount = args[3] as Int
 
-            val itemStack = plugin.savedItemsManager.getSavedItemOrMaterial(material, amount)
+            val item = plugin.savedItemsManager.getItemOrMaterial(material, amount)
                 ?: return@CommandExecutor sendMessage(
                     sender,
                     plugin.settingsManager.messages.wrongMaterial,
@@ -309,10 +310,10 @@ class CommandManager(private val plugin: GiveAll) {
             handleItemGiving(
                 plugin,
                 sender,
-                itemStack,
+                item.itemStack,
                 world.players,
-                Placeholder.unparsed("material", material),
-                Placeholder.unparsed("amount", itemStack.amount.toString()),
+                Placeholder.parsed("material", item.displayName),
+                Placeholder.unparsed("amount", item.itemStack.amount.toString()),
                 Placeholder.unparsed("world", world.name)
             )
         })
@@ -369,7 +370,7 @@ class CommandManager(private val plugin: GiveAll) {
                 itemStack,
                 world.players,
                 Placeholder.unparsed("material", itemStack.type.name.lowercase()),
-                Placeholder.unparsed("amount", amount.toString()),
+                Placeholder.unparsed("amount", itemStack.amount.toString()),
                 Placeholder.unparsed("world", world.name)
             )
         })
@@ -459,7 +460,7 @@ class CommandManager(private val plugin: GiveAll) {
             val radius = args[0] as Double
             val material = args[2] as String
 
-            val itemStack = plugin.savedItemsManager.getSavedItemOrMaterial(material)
+            val item = plugin.savedItemsManager.getItemOrMaterial(material)
                 ?: return@PlayerCommandExecutor sendMessage(
                     sender,
                     plugin.settingsManager.messages.wrongMaterial,
@@ -469,13 +470,13 @@ class CommandManager(private val plugin: GiveAll) {
             handleItemGiving(
                 plugin,
                 sender,
-                itemStack,
+                item.itemStack,
                 getPlayersInRadius(
                     sender,
                     radius
                 ),
-                Placeholder.unparsed("material", material),
-                Placeholder.unparsed("amount", itemStack.amount.toString()),
+                Placeholder.parsed("material", item.displayName),
+                Placeholder.unparsed("amount", item.itemStack.amount.toString()),
                 Placeholder.unparsed("radius", radius.toString())
             )
         })
@@ -498,7 +499,7 @@ class CommandManager(private val plugin: GiveAll) {
             val material = args[2] as String
             val amount = args[3] as Int
 
-            val itemStack = plugin.savedItemsManager.getSavedItemOrMaterial(material, amount)
+            val item = plugin.savedItemsManager.getItemOrMaterial(material, amount)
                 ?: return@PlayerCommandExecutor sendMessage(
                     sender,
                     plugin.settingsManager.messages.wrongMaterial,
@@ -508,13 +509,13 @@ class CommandManager(private val plugin: GiveAll) {
             handleItemGiving(
                 plugin,
                 sender,
-                itemStack,
+                item.itemStack,
                 getPlayersInRadius(
                     sender,
                     radius
                 ),
-                Placeholder.unparsed("material", material),
-                Placeholder.unparsed("amount", amount.toString()),
+                Placeholder.parsed("material", item.displayName),
+                Placeholder.unparsed("amount", item.itemStack.amount.toString()),
                 Placeholder.unparsed("radius", radius.toString())
             )
         })
@@ -710,7 +711,7 @@ class CommandManager(private val plugin: GiveAll) {
             val z = args[6] as Double
             val material = args[8] as String
 
-            val itemStack = plugin.savedItemsManager.getSavedItemOrMaterial(material)
+            val item = plugin.savedItemsManager.getItemOrMaterial(material)
                 ?: return@CommandExecutor sendMessage(
                     sender,
                     plugin.settingsManager.messages.wrongMaterial,
@@ -720,13 +721,13 @@ class CommandManager(private val plugin: GiveAll) {
             handleItemGiving(
                 plugin,
                 sender,
-                itemStack,
+                item.itemStack,
                 getPlayersInRadius(
                     Location(world, x, y, z),
                     radius
                 ),
-                Placeholder.unparsed("material", material),
-                Placeholder.unparsed("amount", itemStack.amount.toString()),
+                Placeholder.parsed("material", item.displayName),
+                Placeholder.unparsed("amount", item.itemStack.amount.toString()),
                 Placeholder.unparsed("world", world.name),
                 Placeholder.unparsed("radius", radius.toString()),
                 Placeholder.unparsed("x", x.toString()),
@@ -766,7 +767,7 @@ class CommandManager(private val plugin: GiveAll) {
             val material = args[8] as String
             val amount = args[9] as Int
 
-            val itemStack = plugin.savedItemsManager.getSavedItemOrMaterial(material, amount)
+            val item = plugin.savedItemsManager.getItemOrMaterial(material, amount)
                 ?: return@CommandExecutor sendMessage(
                     sender,
                     plugin.settingsManager.messages.wrongMaterial,
@@ -776,13 +777,13 @@ class CommandManager(private val plugin: GiveAll) {
             handleItemGiving(
                 plugin,
                 sender,
-                itemStack,
+                item.itemStack,
                 getPlayersInRadius(
                     Location(world, x, y, z),
                     radius
                 ),
-                Placeholder.unparsed("material", material),
-                Placeholder.unparsed("amount", amount.toString()),
+                Placeholder.parsed("material", item.displayName),
+                Placeholder.unparsed("amount", item.itemStack.amount.toString()),
                 Placeholder.unparsed("world", world.name),
                 Placeholder.unparsed("radius", radius.toString()),
                 Placeholder.unparsed("x", x.toString()),
@@ -887,7 +888,7 @@ class CommandManager(private val plugin: GiveAll) {
                     radius
                 ),
                 Placeholder.unparsed("material", itemStack.type.name.lowercase()),
-                Placeholder.unparsed("amount", amount.toString()),
+                Placeholder.unparsed("amount", itemStack.amount.toString()),
                 Placeholder.unparsed("world", world.name),
                 Placeholder.unparsed("radius", radius.toString()),
                 Placeholder.unparsed("x", x.toString()),
@@ -1045,10 +1046,12 @@ class CommandManager(private val plugin: GiveAll) {
         .withArguments(
             MultiLiteralArgument("save")
                 .withPermission(SPECIAL_ITEM_SAVE_PERMISSION),
-            StringArgument("name")
+            StringArgument("name"),
+            TextArgument("display-name")
         )
         .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any?> ->
             val name = args[1] as String
+            val displayName = args[2] as String
 
             if (Material.matchMaterial(name) != null)
                 return@PlayerCommandExecutor sendMessage(
@@ -1057,12 +1060,15 @@ class CommandManager(private val plugin: GiveAll) {
                     Placeholder.unparsed("wrong_value", name)
                 )
 
-            if (!name.isValidName())
+            try {
+                SavedItemsManager.validateName(name)
+            } catch (exception: IllegalArgumentException) {
                 return@PlayerCommandExecutor sendMessage(
                     sender,
                     plugin.settingsManager.messages.nameAlphanumerical,
                     Placeholder.unparsed("wrong_value", name)
                 )
+            }
 
             if (plugin.savedItemsManager.contains(name))
                 return@PlayerCommandExecutor sendMessage(
@@ -1071,7 +1077,7 @@ class CommandManager(private val plugin: GiveAll) {
                     Placeholder.unparsed("wrong_value", name)
                 )
 
-            handleItemSaving(sender, name)
+            handleItemSaving(sender, name, displayName)
         })
 
     // Player
@@ -1083,10 +1089,12 @@ class CommandManager(private val plugin: GiveAll) {
             MultiLiteralArgument("save")
                 .withPermission(SPECIAL_ITEM_SAVE_PERMISSION),
             StringArgument("name"),
+            TextArgument("display-name"),
             MultiLiteralArgument("force")
         )
         .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any?> ->
             val name = args[1] as String
+            val displayName = args[2] as String
 
             if (Material.matchMaterial(name) != null)
                 return@PlayerCommandExecutor sendMessage(
@@ -1095,14 +1103,17 @@ class CommandManager(private val plugin: GiveAll) {
                     Placeholder.unparsed("wrong_value", name)
                 )
 
-            if (!name.isValidName())
+            try {
+                SavedItemsManager.validateName(name)
+            } catch (exception: IllegalArgumentException) {
                 return@PlayerCommandExecutor sendMessage(
                     sender,
                     plugin.settingsManager.messages.nameAlphanumerical,
                     Placeholder.unparsed("wrong_value", name)
                 )
+            }
 
-            handleItemSaving(sender, name)
+            handleItemSaving(sender, name, displayName)
         })
 
     // Any
@@ -1125,7 +1136,7 @@ class CommandManager(private val plugin: GiveAll) {
                     Placeholder.unparsed("wrong_value", name)
                 )
 
-            plugin.savedItemsManager.removeItemStack(name)
+            plugin.savedItemsManager.removeItem(name)
             sendMessage(
                 sender,
                 plugin.settingsManager.messages.itemRemoved,
@@ -1133,14 +1144,14 @@ class CommandManager(private val plugin: GiveAll) {
             )
         })
 
-    private fun handleItemSaving(player: Player, name: String) {
+    private fun handleItemSaving(player: Player, name: String, displayName: String) {
         val item = player.inventory.itemInMainHand.clone()
         if (item.type.isAir) return sendMessage(
             player,
             plugin.settingsManager.messages.itemAir
         )
 
-        plugin.savedItemsManager.addItemStack(name, item.clone(), true)
+        plugin.savedItemsManager.addItem(name, displayName, item.clone(), true)
         sendMessage(
             player,
             plugin.settingsManager.messages.itemSaved,

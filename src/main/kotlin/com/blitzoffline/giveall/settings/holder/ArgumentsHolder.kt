@@ -1,6 +1,7 @@
 package com.blitzoffline.giveall.settings.holder
 
 import com.blitzoffline.giveall.GiveAll
+import com.blitzoffline.giveall.settings.SettingsManager
 import dev.jorel.commandapi.arguments.Argument
 import dev.jorel.commandapi.arguments.CustomArgument
 import dev.jorel.commandapi.arguments.CustomArgument.CustomArgumentException
@@ -13,7 +14,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.Bukkit
 import org.bukkit.World
 
-class ArgumentsHolder(private val plugin: GiveAll) {
+class ArgumentsHolder(private val settingsManager: SettingsManager) {
     val worldArgument: Argument<World> = CustomArgument(
         StringArgument("world"),
         CustomArgumentInfoParser { info: CustomArgumentInfo<String> ->
@@ -21,14 +22,14 @@ class ArgumentsHolder(private val plugin: GiveAll) {
                 ?: throw CustomArgumentException(
                     PlainTextComponentSerializer.plainText().serialize(
                         MiniMessage.miniMessage().deserialize(
-                            plugin.settingsManager.messages.wrongWorld,
+                            settingsManager.messages.wrongWorld,
                             Placeholder.unparsed("wrong_value", info.currentInput)
                         )
                     )
                 )
         }
-    ).replaceSuggestions(plugin.settingsManager.suggestions.worldSuggestions)
+    ).replaceSuggestions(settingsManager.suggestions.worldSuggestions)
 
     val materialArgument: Argument<String> = StringArgument("material")
-        .replaceSuggestions(plugin.settingsManager.suggestions.materialSuggestions)
+        .replaceSuggestions(settingsManager.suggestions.materialSuggestions)
 }

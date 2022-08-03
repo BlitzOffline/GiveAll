@@ -4,7 +4,7 @@ import com.blitzoffline.giveall.command.CommandManager
 import com.blitzoffline.giveall.database.Database
 import com.blitzoffline.giveall.database.GsonDatabase
 import com.blitzoffline.giveall.extension.adventure
-import com.blitzoffline.giveall.manager.SavedItemsManager
+import com.blitzoffline.giveall.item.SavedItemsManager
 import com.blitzoffline.giveall.settings.SettingsManager
 import com.blitzoffline.giveall.task.SaveDataTask
 import dev.jorel.commandapi.CommandAPI
@@ -73,7 +73,7 @@ class GiveAll : JavaPlugin() {
 
         savedItemsManager = SavedItemsManager()
         database = GsonDatabase(this)
-        database.loadItemStacks()
+        database.loadItems()
 
         registerTasks()
 
@@ -82,7 +82,7 @@ class GiveAll : JavaPlugin() {
 
     override fun onDisable() {
         if(::saveData.isInitialized && !saveData.isCancelled) saveData.cancel()
-        if(::database.isInitialized) database.saveItemStacks(savedItemsManager.clone())
+        if(::database.isInitialized) database.saveItems(savedItemsManager.clone())
 
         CommandAPI.onDisable()
         logger.info("Plugin disabled successfully!")

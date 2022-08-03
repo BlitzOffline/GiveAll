@@ -1,10 +1,10 @@
-package com.blitzoffline.giveall.manager
+package com.blitzoffline.giveall.item
 
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
 class SavedItemsManager {
-    private val savedItems = hashMapOf<String, ItemStack>()
+    private val items = hashMapOf<String, SavedItem>()
 
     /**
      * Check if the backing map contains an item stack associated with a name
@@ -12,7 +12,7 @@ class SavedItemsManager {
      * @param name the name associated with the item stack
      * @return true if the map contains an item stack associated with the specified key, false otherwise
      */
-    fun contains(name: String) = savedItems.contains(name.lowercase())
+    fun contains(name: String) = items.contains(name.lowercase())
 
     /**
      * Get an item stack associated with a name
@@ -20,7 +20,7 @@ class SavedItemsManager {
      * @param name the name associated with the item stack
      * @return the item stack associated with the name if there is one, null otherwise
      */
-    fun getItemStack(name: String) = savedItems[name.lowercase()]?.clone()
+    fun getItem(name: String) = items[name.lowercase()]?.clone()
 
     /**
      * Add an item stack to the map
@@ -30,10 +30,15 @@ class SavedItemsManager {
      * @param force if this is true and there's already an item stack associated with that name it will be replaced
      * otherwise the item stack will be placed in the map only if there isn't any item associated with the name
      */
-    fun addItemStack(name: String, itemStack: ItemStack, force: Boolean = false): Boolean {
-        if (contains(name) && !force) return false
-        savedItems[name.lowercase()] = itemStack
-        return true;
+    fun addItem(name: String, displayName: String, itemStack: ItemStack, force: Boolean = false): Boolean {
+        return addItem(SavedItem(name, displayName, itemStack), force)
+    }
+
+    fun addItem(savedItem: SavedItem, force: Boolean): Boolean {
+        validateName(savedItem.name)
+        if (contains(savedItem.name) && !force) return false
+        items[savedItem.name.lowercase()] = savedItem.clone()
+        return true
     }
 
     /**
@@ -43,23 +48,34 @@ class SavedItemsManager {
      * @return the item stack that was removed if there was one and null if there was no item stack associated with that
      * name
      */
-    fun removeItemStack(name: String) = savedItems.remove(name.lowercase())
+    fun removeItem(name: String) = items.remove(name.lowercase())
 
     /**
      * Clear the backing map
      */
-    fun clear() = savedItems.clear()
+    fun clear() = items.clear()
 
     /**
      * Clone the backing map
      *
      * @return an immutable copy of the backing map
      */
-    fun clone() = savedItems.toMap()
+    fun clone() = items.toMap()
 
-    fun getSavedItemOrMaterial(name: String, amount: Int = -1): ItemStack? {
-        if (contains(name)) return getItemStack(name)
+    fun getItemOrMaterial(name: String, amount: Int = -1): SavedItem? {
+        if (contains(name)) return getItem(name)
         val material = Material.matchMaterial(name) ?: return null
-        return if (amount < 1) ItemStack(material, material.maxStackSize) else ItemStack(material, amount)
+        return if (amount < 1)
+            SavedItem(name, name.lowercase(), ItemStack(material, material.maxStackSize))
+        else
+            SavedItem(name, name.lowercase(), ItemStack(material, amount))
+    }
+
+    companion object {
+        @Throws(IllegalArgumentException::class)
+        fun validateName(name: String) {
+            if (name.all { c -> c.isLetterOrDigit() || c == '_' }) return
+            throw IllegalArgumentException("Invalid name: $name. Must match: [a-zA-Z0-9_]")
+        }
     }
 }
