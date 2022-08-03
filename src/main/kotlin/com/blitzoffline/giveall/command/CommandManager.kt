@@ -106,7 +106,7 @@ class CommandManager(private val plugin: GiveAll) {
     private fun createMaterialCommand() = CommandAPICommand("material")
         .withPermission(BASE_MATERIAL_PERMISSION)
         .withArguments(
-            plugin.argumentsHolder.materialArgument
+            plugin.settingsManager.arguments.materialArgument
         ).executes(CommandExecutor { sender: CommandSender, args: Array<Any?> ->
             val material = args[0] as String
             val itemStack = plugin.savedItemsManager.getSavedItemOrMaterial(material)
@@ -130,7 +130,7 @@ class CommandManager(private val plugin: GiveAll) {
     private fun createMaterialWithAmountCommand() = CommandAPICommand("material")
         .withPermission(BASE_MATERIAL_PERMISSION)
         .withArguments(
-            plugin.argumentsHolder.materialArgument,
+            plugin.settingsManager.arguments.materialArgument,
             IntegerArgument("amount", 1)
         ).executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
             val material = args[0] as String
@@ -258,10 +258,10 @@ class CommandManager(private val plugin: GiveAll) {
             WORLD_PERMISSIONS.any { sender.hasPermission(it) }
         }
         .withArguments(
-            plugin.argumentsHolder.worldArgument,
+            plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("material")
                 .withPermission(WORLD_MATERIAL_PERMISSION),
-            plugin.argumentsHolder.materialArgument
+            plugin.settingsManager.arguments.materialArgument
         )
         .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
             val world = args[0] as World
@@ -288,10 +288,10 @@ class CommandManager(private val plugin: GiveAll) {
     // Any
     private fun createWorldMaterialWithAmountCommand() = CommandAPICommand("world")
         .withArguments(
-            plugin.argumentsHolder.worldArgument,
+            plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("material")
                 .withPermission(WORLD_MATERIAL_PERMISSION),
-            plugin.argumentsHolder.materialArgument,
+            plugin.settingsManager.arguments.materialArgument,
             IntegerArgument("amount", 1)
         )
         .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
@@ -320,7 +320,7 @@ class CommandManager(private val plugin: GiveAll) {
     // Player
     private fun createWorldHandCommand() = CommandAPICommand("world")
         .withArguments(
-            plugin.argumentsHolder.worldArgument,
+            plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("hand")
                 .withPermission(WORLD_HAND_PERMISSION),
         )
@@ -347,7 +347,7 @@ class CommandManager(private val plugin: GiveAll) {
     // Player
     private fun createWorldHandWithAmountCommand() = CommandAPICommand("world")
         .withArguments(
-            plugin.argumentsHolder.worldArgument,
+            plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("hand")
                 .withPermission(WORLD_HAND_PERMISSION),
             IntegerArgument("amount", 1)
@@ -377,7 +377,7 @@ class CommandManager(private val plugin: GiveAll) {
     // Any
     private fun createWorldXpPointsCommand() = CommandAPICommand("world")
         .withArguments(
-            plugin.argumentsHolder.worldArgument,
+            plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("xp")
                 .withPermission(WORLD_XP_PERMISSION),
             IntegerArgument("amount", 1)
@@ -400,7 +400,7 @@ class CommandManager(private val plugin: GiveAll) {
     // Any
     private fun createWorldXpLevelsCommand() = CommandAPICommand("world")
         .withArguments(
-            plugin.argumentsHolder.worldArgument,
+            plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("xp")
                 .withPermission(WORLD_XP_PERMISSION),
             IntegerArgument("amount", 1),
@@ -424,7 +424,7 @@ class CommandManager(private val plugin: GiveAll) {
     // Any
     private fun createWorldMoneyCommand() = CommandAPICommand("world")
         .withArguments(
-            plugin.argumentsHolder.worldArgument,
+            plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("money")
                 .withPermission(WORLD_MONEY_PERMISSION),
             DoubleArgument("amount", 1.0)
@@ -453,7 +453,7 @@ class CommandManager(private val plugin: GiveAll) {
             DoubleArgument("radius", 1.0),
             MultiLiteralArgument("material")
                 .withPermission(RADIUS_MATERIAL_PERMISSION),
-            plugin.argumentsHolder.materialArgument
+            plugin.settingsManager.arguments.materialArgument
         )
         .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any> ->
             val radius = args[0] as Double
@@ -490,7 +490,7 @@ class CommandManager(private val plugin: GiveAll) {
             DoubleArgument("radius", 1.0),
             MultiLiteralArgument("material")
                 .withPermission(RADIUS_MATERIAL_PERMISSION),
-            plugin.argumentsHolder.materialArgument,
+            plugin.settingsManager.arguments.materialArgument,
             IntegerArgument("amount", 1)
         )
         .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any> ->
@@ -693,14 +693,14 @@ class CommandManager(private val plugin: GiveAll) {
                 .withRequirement { sender ->
                     RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
                 },
-            plugin.argumentsHolder.worldArgument,
+            plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("center"),
             DoubleArgument("x"),
             DoubleArgument("y"),
             DoubleArgument("z"),
             MultiLiteralArgument("material")
                 .withPermission(RADIUS_WORLD_MATERIAL_PERMISSION),
-            plugin.argumentsHolder.materialArgument
+            plugin.settingsManager.arguments.materialArgument
         )
         .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
             val radius = args[0] as Double
@@ -747,14 +747,14 @@ class CommandManager(private val plugin: GiveAll) {
                 .withRequirement { sender ->
                     RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
                 },
-            plugin.argumentsHolder.worldArgument,
+            plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("center"),
             DoubleArgument("x"),
             DoubleArgument("y"),
             DoubleArgument("z"),
             MultiLiteralArgument("material")
                 .withPermission(RADIUS_WORLD_MATERIAL_PERMISSION),
-            plugin.argumentsHolder.materialArgument,
+            plugin.settingsManager.arguments.materialArgument,
             IntegerArgument("amount", 1)
         )
         .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
@@ -803,7 +803,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withRequirement { sender ->
                     RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
                 },
-            plugin.argumentsHolder.worldArgument,
+            plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("center"),
             DoubleArgument("x"),
             DoubleArgument("y"),
@@ -854,7 +854,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withRequirement { sender ->
                     RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
                 },
-            plugin.argumentsHolder.worldArgument,
+            plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("center"),
             DoubleArgument("x"),
             DoubleArgument("y"),
@@ -908,7 +908,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withRequirement { sender ->
                     RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
                 },
-            plugin.argumentsHolder.worldArgument,
+            plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("center"),
             DoubleArgument("x"),
             DoubleArgument("y"),
@@ -955,7 +955,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withRequirement { sender ->
                     RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
                 },
-            plugin.argumentsHolder.worldArgument,
+            plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("center"),
             DoubleArgument("x"),
             DoubleArgument("y"),
@@ -1003,7 +1003,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withRequirement { sender ->
                     RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
                 },
-            plugin.argumentsHolder.worldArgument,
+            plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("center"),
             DoubleArgument("x"),
             DoubleArgument("y"),

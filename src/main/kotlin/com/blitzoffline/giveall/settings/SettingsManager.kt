@@ -1,10 +1,18 @@
 package com.blitzoffline.giveall.settings
 
 import com.blitzoffline.giveall.GiveAll
+import com.blitzoffline.giveall.settings.holder.ArgumentsHolder
+import com.blitzoffline.giveall.settings.holder.SuggestionsHolder
 import java.io.File
 
-class SettingsManager(dataFolder: File, plugin: GiveAll) {
+class SettingsManager(private val plugin: GiveAll, dataFolder: File) {
     private val factory = SettingsFactory(dataFolder, plugin)
+
+    var suggestions = SuggestionsHolder()
+        private set
+
+    var arguments = ArgumentsHolder(plugin)
+        private set
 
     var settings = factory.settings()
         private set
@@ -13,6 +21,8 @@ class SettingsManager(dataFolder: File, plugin: GiveAll) {
         private set
 
     fun reload() {
+        suggestions = SuggestionsHolder()
+        arguments = ArgumentsHolder(plugin)
         settings = factory.settings()
         messages = factory.messages()
     }

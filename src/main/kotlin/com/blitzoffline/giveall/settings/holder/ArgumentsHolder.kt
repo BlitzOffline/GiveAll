@@ -1,4 +1,4 @@
-package com.blitzoffline.giveall.command
+package com.blitzoffline.giveall.settings.holder
 
 import com.blitzoffline.giveall.GiveAll
 import dev.jorel.commandapi.arguments.Argument
@@ -27,8 +27,8 @@ class ArgumentsHolder(private val plugin: GiveAll) {
                     )
                 )
         }
-    ).replaceSuggestions(plugin.suggestionsHolder.worldSuggestions)
+    ).replaceSuggestions(plugin.settingsManager.suggestions.worldSuggestions)
 
     val materialArgument: Argument<String> = StringArgument("material")
-        .replaceSuggestions(plugin.suggestionsHolder.materialSuggestions)
+        .replaceSuggestions(plugin.settingsManager.suggestions.materialSuggestions)
 }

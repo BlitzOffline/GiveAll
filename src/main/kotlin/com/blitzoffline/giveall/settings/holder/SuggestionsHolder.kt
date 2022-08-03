@@ -1,4 +1,4 @@
-package com.blitzoffline.giveall.command
+package com.blitzoffline.giveall.settings.holder
 
 import dev.jorel.commandapi.arguments.ArgumentSuggestions
 import org.bukkit.Bukkit

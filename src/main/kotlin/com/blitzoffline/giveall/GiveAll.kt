@@ -1,8 +1,6 @@
 package com.blitzoffline.giveall
 
-import com.blitzoffline.giveall.command.ArgumentsHolder
 import com.blitzoffline.giveall.command.CommandManager
-import com.blitzoffline.giveall.command.SuggestionsHolder
 import com.blitzoffline.giveall.database.Database
 import com.blitzoffline.giveall.database.GsonDatabase
 import com.blitzoffline.giveall.extension.adventure
@@ -19,10 +17,6 @@ import org.bukkit.scheduler.BukkitTask
 
 class GiveAll : JavaPlugin() {
     lateinit var settingsManager: SettingsManager
-        private set
-    lateinit var suggestionsHolder: SuggestionsHolder
-        private set
-    lateinit var argumentsHolder: ArgumentsHolder
         private set
     lateinit var database: Database
         private set
@@ -43,9 +37,7 @@ class GiveAll : JavaPlugin() {
         CommandAPI.onEnable(this)
         adventure = BukkitAudiences.create(this)
 
-        settingsManager = SettingsManager(dataFolder, this)
-        suggestionsHolder = SuggestionsHolder()
-        argumentsHolder = ArgumentsHolder(this)
+        settingsManager = SettingsManager(this, dataFolder)
         commandManager = CommandManager(this)
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
