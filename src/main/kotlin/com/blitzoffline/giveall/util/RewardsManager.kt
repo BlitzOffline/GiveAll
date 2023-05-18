@@ -130,7 +130,7 @@ private fun handleXpPointsGiving(
     for (receiver in receivers) {
         if (!handleBasicReceiverChecks(plugin, sender, receiver)) continue
 
-        receiver.giveExpLevels(amount)
+        receiver.giveExp(amount)
         count++
 
         sendMessage(

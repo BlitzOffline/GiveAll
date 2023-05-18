@@ -32,31 +32,20 @@ class CommandManager(private val plugin: GiveAll) {
                 createReloadCommand(),
 
                 createMaterialCommand(),
-                createMaterialWithAmountCommand(),
                 createHandCommand(),
-                createHandWithAmountCommand(),
-                createXpPointsCommand(),
-                createXpLevelsCommand(),
+                createXpCommand(),
 
                 createRadiusMaterialCommand(),
-                createRadiusMaterialWithAmountCommand(),
                 createRadiusHandCommand(),
-                createRadiusHandWithAmountCommand(),
-                createRadiusXpPointsCommand(),
-                createRadiusXpLevelsCommand(),
+                createRadiusXpCommand(),
+
                 createRadiusWorldMaterialCommand(),
-                createRadiusWorldMaterialWithAmountCommand(),
                 createRadiusWorldHandCommand(),
-                createRadiusWorldHandWithAmountCommand(),
-                createRadiusWorldXpPointsCommand(),
-                createRadiusWorldXpLevelsCommand(),
+                createRadiusWorldXpCommand(),
 
                 createWorldMaterialCommand(),
-                createWorldMaterialWithAmountCommand(),
                 createWorldHandCommand(),
-                createWorldHandWithAmountCommand(),
-                createWorldXpPointsCommand(),
-                createWorldXpLevelsCommand(),
+                createWorldXpCommand(),
 
                 createSpecialItemSaveCommand(),
                 createSpecialItemSaveWithForceCommand(),
@@ -111,34 +100,11 @@ class CommandManager(private val plugin: GiveAll) {
         .withPermission(BASE_MATERIAL_PERMISSION)
         .withArguments(
             plugin.settingsManager.arguments.materialArgument
-        ).executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
-            val material = args[0] as String
-            val item = plugin.savedItemsManager.getItemOrMaterial(material)
-                ?: return@CommandExecutor sendMessage(
-                    sender,
-                    plugin.settingsManager.messages.wrongMaterial,
-                    Placeholder.unparsed("wrong_value", material)
-                )
-
-            handleItemGiving(
-                plugin,
-                sender,
-                item.itemStack,
-                Bukkit.getOnlinePlayers(),
-                Placeholder.parsed("material", item.displayName),
-                Placeholder.unparsed("amount", item.itemStack.amount.toString())
-            )
-        })
-
-    // Any
-    private fun createMaterialWithAmountCommand() = CommandAPICommand("material")
-        .withPermission(BASE_MATERIAL_PERMISSION)
-        .withArguments(
-            plugin.settingsManager.arguments.materialArgument,
+        ).withOptionalArguments(
             IntegerArgument("amount", 1)
         ).executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val material = args[0] as String
-            val amount = args[1] as Int
+            val amount = args[1] as? Int ?: -1
             val item = plugin.savedItemsManager.getItemOrMaterial(material, amount)
                 ?: return@CommandExecutor sendMessage(
                     sender,
@@ -159,38 +125,18 @@ class CommandManager(private val plugin: GiveAll) {
     // Player
     private fun createHandCommand() = CommandAPICommand("hand")
         .withPermission(BASE_HAND_PERMISSION)
-        .executesPlayer(PlayerCommandExecutor { sender: Player, _: CommandArguments ->
-            val itemStack = sender.inventory.itemInMainHand.clone()
-            if (itemStack.type.isAir) return@PlayerCommandExecutor sendMessage(
-                sender,
-                plugin.settingsManager.messages.itemAir
-            )
-
-            handleItemGiving(
-                plugin,
-                sender,
-                itemStack,
-                Bukkit.getOnlinePlayers(),
-                Placeholder.unparsed("material", itemStack.type.name.lowercase()),
-                Placeholder.unparsed("amount", itemStack.amount.toString())
-            )
-        })
-
-    // Player
-    private fun createHandWithAmountCommand() = CommandAPICommand("hand")
-        .withPermission(BASE_HAND_PERMISSION)
-        .withArguments(
+        .withOptionalArguments(
             IntegerArgument("amount", 1)
         )
         .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
-            val amount = args[0] as Int
+            val amount = args[0] as? Int
             val itemStack = sender.inventory.itemInMainHand.clone()
             if (itemStack.type.isAir) return@PlayerCommandExecutor sendMessage(
                 sender,
                 plugin.settingsManager.messages.itemAir
             )
 
-            itemStack.amount = amount
+            if (amount != null) itemStack.amount = amount
 
             handleItemGiving(
                 plugin,
@@ -203,37 +149,22 @@ class CommandManager(private val plugin: GiveAll) {
         })
 
     // Any
-    private fun createXpPointsCommand() = CommandAPICommand("xp")
-        .withPermission(BASE_XP_PERMISSION)
-        .withArguments(
-            IntegerArgument("amount", 1)
-        )
-        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
-            val amount = args[0] as Int
-            handleXpGiving(
-                plugin,
-                sender,
-                amount,
-                false,
-                Bukkit.getOnlinePlayers(),
-                Placeholder.unparsed("amount", amount.toString())
-            )
-        })
-
-    // Any
-    private fun createXpLevelsCommand() = CommandAPICommand("xp")
+    private fun createXpCommand() = CommandAPICommand("xp")
         .withPermission(BASE_XP_PERMISSION)
         .withArguments(
             IntegerArgument("amount", 1),
+        )
+        .withOptionalArguments(
             MultiLiteralArgument("levels")
         )
         .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
+            val levels = args.getOptional("levels").isPresent
             val amount = args[0] as Int
             handleXpGiving(
                 plugin,
                 sender,
                 amount,
-                true,
+                levels,
                 Bukkit.getOnlinePlayers(),
                 Placeholder.unparsed("amount", amount.toString())
             )
@@ -258,50 +189,19 @@ class CommandManager(private val plugin: GiveAll) {
 
     // Any
     private fun createWorldMaterialCommand() = CommandAPICommand("world")
-        .withRequirement { sender ->
-            WORLD_PERMISSIONS.any { sender.hasPermission(it) }
-        }
         .withArguments(
             plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("material")
                 .withPermission(WORLD_MATERIAL_PERMISSION),
             plugin.settingsManager.arguments.materialArgument
         )
-        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
-            val world = args[0] as World
-            val material = args[2] as String
-
-            val item = plugin.savedItemsManager.getItemOrMaterial(material)
-                ?: return@CommandExecutor sendMessage(
-                    sender,
-                    plugin.settingsManager.messages.wrongMaterial,
-                    Placeholder.unparsed("wrong_value", material)
-                )
-
-            handleItemGiving(
-                plugin,
-                sender,
-                item.itemStack,
-                world.players,
-                Placeholder.parsed("material", item.displayName),
-                Placeholder.unparsed("amount", item.itemStack.amount.toString()),
-                Placeholder.unparsed("world", world.name)
-            )
-        })
-
-    // Any
-    private fun createWorldMaterialWithAmountCommand() = CommandAPICommand("world")
-        .withArguments(
-            plugin.settingsManager.arguments.worldArgument,
-            MultiLiteralArgument("material")
-                .withPermission(WORLD_MATERIAL_PERMISSION),
-            plugin.settingsManager.arguments.materialArgument,
+        .withOptionalArguments(
             IntegerArgument("amount", 1)
         )
         .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val world = args[0] as World
             val material = args[2] as String
-            val amount = args[3] as Int
+            val amount = args[3] as? Int ?: -1
 
             val item = plugin.savedItemsManager.getItemOrMaterial(material, amount)
                 ?: return@CommandExecutor sendMessage(
@@ -326,46 +226,22 @@ class CommandManager(private val plugin: GiveAll) {
         .withArguments(
             plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("hand")
-                .withPermission(WORLD_HAND_PERMISSION),
+                .withPermission(WORLD_HAND_PERMISSION)
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
-            val world = args[0] as World
-
-            val itemStack = sender.inventory.itemInMainHand.clone()
-            if (itemStack.type.isAir) return@PlayerCommandExecutor sendMessage(
-                sender,
-                plugin.settingsManager.messages.itemAir
-            )
-
-            handleItemGiving(
-                plugin,
-                sender,
-                itemStack,
-                world.players,
-                Placeholder.unparsed("material", itemStack.type.name.lowercase()),
-                Placeholder.unparsed("amount", itemStack.amount.toString()),
-                Placeholder.unparsed("world", world.name)
-            )
-        })
-
-    // Player
-    private fun createWorldHandWithAmountCommand() = CommandAPICommand("world")
-        .withArguments(
-            plugin.settingsManager.arguments.worldArgument,
-            MultiLiteralArgument("hand")
-                .withPermission(WORLD_HAND_PERMISSION),
+        .withOptionalArguments(
             IntegerArgument("amount", 1)
         )
         .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val world = args[0] as World
-            val amount = args[2] as Int
+            val amount = args[2] as? Int
 
             val itemStack = sender.inventory.itemInMainHand.clone()
             if (itemStack.type.isAir) return@PlayerCommandExecutor sendMessage(
                 sender,
                 plugin.settingsManager.messages.itemAir
             )
-            itemStack.amount = amount
+
+            if (amount != null) itemStack.amount = amount
 
             handleItemGiving(
                 plugin,
@@ -379,46 +255,26 @@ class CommandManager(private val plugin: GiveAll) {
         })
 
     // Any
-    private fun createWorldXpPointsCommand() = CommandAPICommand("world")
+    private fun createWorldXpCommand() = CommandAPICommand("world")
         .withArguments(
             plugin.settingsManager.arguments.worldArgument,
             MultiLiteralArgument("xp")
                 .withPermission(WORLD_XP_PERMISSION),
             IntegerArgument("amount", 1)
         )
-        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
-            val world = args[0] as World
-            val amount = args[2] as Int
-
-            handleXpGiving(
-                plugin,
-                sender,
-                amount,
-                false,
-                world.players,
-                Placeholder.unparsed("amount", amount.toString()),
-                Placeholder.unparsed("world", world.name)
-            )
-        })
-
-    // Any
-    private fun createWorldXpLevelsCommand() = CommandAPICommand("world")
-        .withArguments(
-            plugin.settingsManager.arguments.worldArgument,
-            MultiLiteralArgument("xp")
-                .withPermission(WORLD_XP_PERMISSION),
-            IntegerArgument("amount", 1),
+        .withOptionalArguments(
             MultiLiteralArgument("levels")
         )
         .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val world = args[0] as World
             val amount = args[2] as Int
+            val levels = args.getOptional("levels").isPresent
 
             handleXpGiving(
                 plugin,
                 sender,
                 amount,
-                true,
+                levels,
                 world.players,
                 Placeholder.unparsed("amount", amount.toString()),
                 Placeholder.unparsed("world", world.name)
@@ -457,50 +313,15 @@ class CommandManager(private val plugin: GiveAll) {
             DoubleArgument("radius", 1.0),
             MultiLiteralArgument("material")
                 .withPermission(RADIUS_MATERIAL_PERMISSION),
-            plugin.settingsManager.arguments.materialArgument
-        )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
-            val radius = args[0] as Double
-            val material = args[2] as String
-
-            val item = plugin.savedItemsManager.getItemOrMaterial(material)
-                ?: return@PlayerCommandExecutor sendMessage(
-                    sender,
-                    plugin.settingsManager.messages.wrongMaterial,
-                    Placeholder.unparsed("wrong_value", material)
-                )
-
-            handleItemGiving(
-                plugin,
-                sender,
-                item.itemStack,
-                getPlayersInRadius(
-                    sender,
-                    radius
-                ),
-                Placeholder.parsed("material", item.displayName),
-                Placeholder.unparsed("amount", item.itemStack.amount.toString()),
-                Placeholder.unparsed("radius", radius.toString())
-            )
-        })
-
-    // Player
-    private fun createRadiusMaterialWithAmountCommand() = CommandAPICommand("radius")
-        .withRequirement { sender ->
-            RADIUS_PERMISSIONS.any { sender.hasPermission(it) }
-                    || RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
-        }
-        .withArguments(
-            DoubleArgument("radius", 1.0),
-            MultiLiteralArgument("material")
-                .withPermission(RADIUS_MATERIAL_PERMISSION),
             plugin.settingsManager.arguments.materialArgument,
+        )
+        .withOptionalArguments(
             IntegerArgument("amount", 1)
         )
         .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val radius = args[0] as Double
             val material = args[2] as String
-            val amount = args[3] as Int
+            val amount = args[3] as? Int ?: -1
 
             val item = plugin.savedItemsManager.getItemOrMaterial(material, amount)
                 ?: return@PlayerCommandExecutor sendMessage(
@@ -534,14 +355,20 @@ class CommandManager(private val plugin: GiveAll) {
             MultiLiteralArgument("hand")
                 .withPermission(RADIUS_HAND_PERMISSION)
         )
+        .withOptionalArguments(
+            IntegerArgument("amount", 1)
+        )
         .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val radius = args[0] as Double
+            val amount = args[2] as? Int
 
             val itemStack = sender.inventory.itemInMainHand.clone()
             if (itemStack.type.isAir) return@PlayerCommandExecutor sendMessage(
                 sender,
                 plugin.settingsManager.messages.itemAir
             )
+
+            if (amount != null) itemStack.amount = amount
 
             handleItemGiving(
                 plugin,
@@ -558,45 +385,7 @@ class CommandManager(private val plugin: GiveAll) {
         })
 
     // Player
-    private fun createRadiusHandWithAmountCommand() = CommandAPICommand("radius")
-        .withRequirement { sender ->
-            RADIUS_PERMISSIONS.any { sender.hasPermission(it) }
-                    || RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
-        }
-        .withArguments(
-            DoubleArgument("radius", 1.0),
-            MultiLiteralArgument("hand")
-                .withPermission(RADIUS_HAND_PERMISSION),
-            IntegerArgument("amount", 1)
-        )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
-            val radius = args[0] as Double
-            val amount = args[2] as Int
-
-            val itemStack = sender.inventory.itemInMainHand.clone()
-            if (itemStack.type.isAir) return@PlayerCommandExecutor sendMessage(
-                sender,
-                plugin.settingsManager.messages.itemAir
-            )
-
-            itemStack.amount = amount
-
-            handleItemGiving(
-                plugin,
-                sender,
-                itemStack,
-                getPlayersInRadius(
-                    sender,
-                    radius
-                ),
-                Placeholder.unparsed("material", itemStack.type.name.lowercase()),
-                Placeholder.unparsed("amount", itemStack.amount.toString()),
-                Placeholder.unparsed("radius", radius.toString())
-            )
-        })
-
-    // Player
-    private fun createRadiusXpPointsCommand() = CommandAPICommand("radius")
+    private fun createRadiusXpCommand() = CommandAPICommand("radius")
         .withRequirement { sender ->
             RADIUS_PERMISSIONS.any { sender.hasPermission(it) }
                     || RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
@@ -607,46 +396,19 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(RADIUS_XP_PERMISSION),
             IntegerArgument("amount", 1)
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
-            val radius = args[0] as Double
-            val amount = args[2] as Int
-
-            handleXpGiving(
-                plugin,
-                sender,
-                amount,
-                false,
-                getPlayersInRadius(
-                    sender,
-                    radius
-                ),
-                Placeholder.unparsed("amount", amount.toString()),
-                Placeholder.unparsed("radius", radius.toString())
-            )
-        })
-
-    // Player
-    private fun createRadiusXpLevelsCommand() = CommandAPICommand("radius")
-        .withRequirement { sender ->
-            RADIUS_PERMISSIONS.any { sender.hasPermission(it) }
-                    || RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
-        }
-        .withArguments(
-            DoubleArgument("radius", 1.0),
-            MultiLiteralArgument("xp")
-                .withPermission(RADIUS_XP_PERMISSION),
-            IntegerArgument("amount", 1),
+        .withOptionalArguments(
             MultiLiteralArgument("levels")
         )
         .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val radius = args[0] as Double
             val amount = args[2] as Int
+            val levels = args.getOptional(3).isPresent
 
             handleXpGiving(
                 plugin,
                 sender,
                 amount,
-                true,
+                levels,
                 getPlayersInRadius(
                     sender,
                     radius
@@ -686,7 +448,7 @@ class CommandManager(private val plugin: GiveAll) {
         })
 
     // Any
-    private fun createRadiusWorldMaterialCommand()  = CommandAPICommand("radius")
+    private fun createRadiusWorldMaterialCommand() = CommandAPICommand("radius")
         .withRequirement { sender ->
             RADIUS_PERMISSIONS.any { sender.hasPermission(it) }
                     || RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
@@ -706,59 +468,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(RADIUS_WORLD_MATERIAL_PERMISSION),
             plugin.settingsManager.arguments.materialArgument
         )
-        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
-            val radius = args[0] as Double
-            val world = args[2] as World
-            val x = args[4] as Double
-            val y = args[5] as Double
-            val z = args[6] as Double
-            val material = args[8] as String
-
-            val item = plugin.savedItemsManager.getItemOrMaterial(material)
-                ?: return@CommandExecutor sendMessage(
-                    sender,
-                    plugin.settingsManager.messages.wrongMaterial,
-                    Placeholder.unparsed("wrong_value", material)
-                )
-
-            handleItemGiving(
-                plugin,
-                sender,
-                item.itemStack,
-                getPlayersInRadius(
-                    Location(world, x, y, z),
-                    radius
-                ),
-                Placeholder.parsed("material", item.displayName),
-                Placeholder.unparsed("amount", item.itemStack.amount.toString()),
-                Placeholder.unparsed("world", world.name),
-                Placeholder.unparsed("radius", radius.toString()),
-                Placeholder.unparsed("x", x.toString()),
-                Placeholder.unparsed("y", y.toString()),
-                Placeholder.unparsed("z", z.toString())
-            )
-        })
-
-    // Any
-    private fun createRadiusWorldMaterialWithAmountCommand()  = CommandAPICommand("radius")
-        .withRequirement { sender ->
-            RADIUS_PERMISSIONS.any { sender.hasPermission(it) }
-                    || RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
-        }
-        .withArguments(
-            DoubleArgument("radius", 1.0),
-            MultiLiteralArgument("world")
-                .withRequirement { sender ->
-                    RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
-                },
-            plugin.settingsManager.arguments.worldArgument,
-            MultiLiteralArgument("center"),
-            DoubleArgument("x"),
-            DoubleArgument("y"),
-            DoubleArgument("z"),
-            MultiLiteralArgument("material")
-                .withPermission(RADIUS_WORLD_MATERIAL_PERMISSION),
-            plugin.settingsManager.arguments.materialArgument,
+        .withOptionalArguments(
             IntegerArgument("amount", 1)
         )
         .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
@@ -768,7 +478,7 @@ class CommandManager(private val plugin: GiveAll) {
             val y = args[5] as Double
             val z = args[6] as Double
             val material = args[8] as String
-            val amount = args[9] as Int
+            val amount = args[9] as? Int ?: -1
 
             val item = plugin.savedItemsManager.getItemOrMaterial(material, amount)
                 ?: return@CommandExecutor sendMessage(
@@ -815,56 +525,7 @@ class CommandManager(private val plugin: GiveAll) {
             MultiLiteralArgument("hand")
                 .withPermission(RADIUS_WORLD_HAND_PERMISSION)
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
-            val radius = args[0] as Double
-            val world = args[2] as World
-            val x = args[4] as Double
-            val y = args[5] as Double
-            val z = args[6] as Double
-
-            val itemStack = sender.inventory.itemInMainHand.clone()
-            if (itemStack.type.isAir) return@PlayerCommandExecutor sendMessage(
-                sender,
-                plugin.settingsManager.messages.itemAir
-            )
-
-            handleItemGiving(
-                plugin,
-                sender,
-                itemStack,
-                getPlayersInRadius(
-                    Location(world, x, y, z),
-                    radius
-                ),
-                Placeholder.unparsed("material", itemStack.type.name.lowercase()),
-                Placeholder.unparsed("amount", itemStack.amount.toString()),
-                Placeholder.unparsed("world", world.name),
-                Placeholder.unparsed("radius", radius.toString()),
-                Placeholder.unparsed("x", x.toString()),
-                Placeholder.unparsed("y", y.toString()),
-                Placeholder.unparsed("z", z.toString())
-            )
-        })
-
-    // Player
-    private fun createRadiusWorldHandWithAmountCommand() = CommandAPICommand("radius")
-        .withRequirement { sender ->
-            RADIUS_PERMISSIONS.any { sender.hasPermission(it) }
-                    || RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
-        }
-        .withArguments(
-            DoubleArgument("radius", 1.0),
-            MultiLiteralArgument("world")
-                .withRequirement { sender ->
-                    RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
-                },
-            plugin.settingsManager.arguments.worldArgument,
-            MultiLiteralArgument("center"),
-            DoubleArgument("x"),
-            DoubleArgument("y"),
-            DoubleArgument("z"),
-            MultiLiteralArgument("hand")
-                .withPermission(RADIUS_WORLD_HAND_PERMISSION),
+        .withOptionalArguments(
             IntegerArgument("amount", 1)
         )
         .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
@@ -873,14 +534,15 @@ class CommandManager(private val plugin: GiveAll) {
             val x = args[4] as Double
             val y = args[5] as Double
             val z = args[6] as Double
-            val amount = args[7] as Int
+            val amount = args[7] as? Int
 
             val itemStack = sender.inventory.itemInMainHand.clone()
             if (itemStack.type.isAir) return@PlayerCommandExecutor sendMessage(
                 sender,
                 plugin.settingsManager.messages.itemAir
             )
-            itemStack.amount = amount
+
+            if (amount != null) itemStack.amount = amount
 
             handleItemGiving(
                 plugin,
@@ -901,7 +563,7 @@ class CommandManager(private val plugin: GiveAll) {
         })
 
     // Any
-    private fun createRadiusWorldXpPointsCommand() = CommandAPICommand("radius")
+    private fun createRadiusWorldXpCommand() = CommandAPICommand("radius")
         .withRequirement { sender ->
             RADIUS_PERMISSIONS.any { sender.hasPermission(it) }
                     || RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
@@ -921,52 +583,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(RADIUS_WORLD_XP_PERMISSION),
             IntegerArgument("amount", 1)
         )
-        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
-            val radius = args[0] as Double
-            val world = args[2] as World
-            val x = args[4] as Double
-            val y = args[5] as Double
-            val z = args[6] as Double
-            val amount = args[8] as Int
-
-            handleXpGiving(
-                plugin,
-                sender,
-                amount,
-                false,
-                getPlayersInRadius(
-                    Location(world, x, y, z),
-                    radius
-                ),
-                Placeholder.unparsed("amount", amount.toString()),
-                Placeholder.unparsed("world", world.name),
-                Placeholder.unparsed("radius", radius.toString()),
-                Placeholder.unparsed("x", x.toString()),
-                Placeholder.unparsed("y", y.toString()),
-                Placeholder.unparsed("z", z.toString())
-            )
-        })
-
-    // Any
-    private fun createRadiusWorldXpLevelsCommand() = CommandAPICommand("radius")
-        .withRequirement { sender ->
-            RADIUS_PERMISSIONS.any { sender.hasPermission(it) }
-                    || RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
-        }
-        .withArguments(
-            DoubleArgument("radius", 1.0),
-            MultiLiteralArgument("world")
-                .withRequirement { sender ->
-                    RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
-                },
-            plugin.settingsManager.arguments.worldArgument,
-            MultiLiteralArgument("center"),
-            DoubleArgument("x"),
-            DoubleArgument("y"),
-            DoubleArgument("z"),
-            MultiLiteralArgument("xp")
-                .withPermission(RADIUS_WORLD_XP_PERMISSION),
-            IntegerArgument("amount", 1),
+        .withOptionalArguments(
             MultiLiteralArgument("levels")
         )
         .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
@@ -976,12 +593,13 @@ class CommandManager(private val plugin: GiveAll) {
             val y = args[5] as Double
             val z = args[6] as Double
             val amount = args[8] as Int
+            val levels = args.getOptional("levels").isPresent
 
             handleXpGiving(
                 plugin,
                 sender,
                 amount,
-                true,
+                levels,
                 getPlayersInRadius(
                     Location(world, x, y, z),
                     radius
