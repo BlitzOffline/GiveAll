@@ -13,9 +13,9 @@ import dev.jorel.commandapi.arguments.IntegerArgument
 import dev.jorel.commandapi.arguments.MultiLiteralArgument
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.arguments.TextArgument
+import dev.jorel.commandapi.executors.CommandArguments
 import dev.jorel.commandapi.executors.CommandExecutor
 import dev.jorel.commandapi.executors.PlayerCommandExecutor
-import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -88,7 +88,7 @@ class CommandManager(private val plugin: GiveAll) {
     // Any
     private fun createHelpCommand() = CommandAPICommand("help")
         .withPermission(HELP_PERMISSION)
-        .executes(CommandExecutor { sender: CommandSender, _: Array<Any> ->
+        .executes(CommandExecutor { sender: CommandSender, _: CommandArguments ->
             sendMessage(
                 sender,
                 plugin.settingsManager.messages.help
@@ -98,7 +98,7 @@ class CommandManager(private val plugin: GiveAll) {
     // Any
     private fun createReloadCommand() = CommandAPICommand("reload")
         .withPermission(RELOAD_PERMISSION)
-        .executes(CommandExecutor { sender: CommandSender, _: Array<Any> ->
+        .executes(CommandExecutor { sender: CommandSender, _: CommandArguments ->
             plugin.settingsManager.reload()
             sendMessage(
                 sender,
@@ -111,7 +111,7 @@ class CommandManager(private val plugin: GiveAll) {
         .withPermission(BASE_MATERIAL_PERMISSION)
         .withArguments(
             plugin.settingsManager.arguments.materialArgument
-        ).executes(CommandExecutor { sender: CommandSender, args: Array<Any?> ->
+        ).executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val material = args[0] as String
             val item = plugin.savedItemsManager.getItemOrMaterial(material)
                 ?: return@CommandExecutor sendMessage(
@@ -136,7 +136,7 @@ class CommandManager(private val plugin: GiveAll) {
         .withArguments(
             plugin.settingsManager.arguments.materialArgument,
             IntegerArgument("amount", 1)
-        ).executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
+        ).executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val material = args[0] as String
             val amount = args[1] as Int
             val item = plugin.savedItemsManager.getItemOrMaterial(material, amount)
@@ -159,7 +159,7 @@ class CommandManager(private val plugin: GiveAll) {
     // Player
     private fun createHandCommand() = CommandAPICommand("hand")
         .withPermission(BASE_HAND_PERMISSION)
-        .executesPlayer(PlayerCommandExecutor { sender: Player, _: Array<Any?> ->
+        .executesPlayer(PlayerCommandExecutor { sender: Player, _: CommandArguments ->
             val itemStack = sender.inventory.itemInMainHand.clone()
             if (itemStack.type.isAir) return@PlayerCommandExecutor sendMessage(
                 sender,
@@ -182,7 +182,7 @@ class CommandManager(private val plugin: GiveAll) {
         .withArguments(
             IntegerArgument("amount", 1)
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any?> ->
+        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val amount = args[0] as Int
             val itemStack = sender.inventory.itemInMainHand.clone()
             if (itemStack.type.isAir) return@PlayerCommandExecutor sendMessage(
@@ -208,7 +208,7 @@ class CommandManager(private val plugin: GiveAll) {
         .withArguments(
             IntegerArgument("amount", 1)
         )
-        .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
+        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val amount = args[0] as Int
             handleXpGiving(
                 plugin,
@@ -227,7 +227,7 @@ class CommandManager(private val plugin: GiveAll) {
             IntegerArgument("amount", 1),
             MultiLiteralArgument("levels")
         )
-        .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
+        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val amount = args[0] as Int
             handleXpGiving(
                 plugin,
@@ -245,7 +245,7 @@ class CommandManager(private val plugin: GiveAll) {
         .withArguments(
             DoubleArgument("amount", 1.0)
         )
-        .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
+        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val amount = args[0] as Double
             handleMoneyGiving(
                 plugin,
@@ -267,7 +267,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(WORLD_MATERIAL_PERMISSION),
             plugin.settingsManager.arguments.materialArgument
         )
-        .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
+        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val world = args[0] as World
             val material = args[2] as String
 
@@ -298,7 +298,7 @@ class CommandManager(private val plugin: GiveAll) {
             plugin.settingsManager.arguments.materialArgument,
             IntegerArgument("amount", 1)
         )
-        .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
+        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val world = args[0] as World
             val material = args[2] as String
             val amount = args[3] as Int
@@ -328,7 +328,7 @@ class CommandManager(private val plugin: GiveAll) {
             MultiLiteralArgument("hand")
                 .withPermission(WORLD_HAND_PERMISSION),
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any> ->
+        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val world = args[0] as World
 
             val itemStack = sender.inventory.itemInMainHand.clone()
@@ -356,7 +356,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(WORLD_HAND_PERMISSION),
             IntegerArgument("amount", 1)
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any> ->
+        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val world = args[0] as World
             val amount = args[2] as Int
 
@@ -386,7 +386,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(WORLD_XP_PERMISSION),
             IntegerArgument("amount", 1)
         )
-        .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
+        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val world = args[0] as World
             val amount = args[2] as Int
 
@@ -410,7 +410,7 @@ class CommandManager(private val plugin: GiveAll) {
             IntegerArgument("amount", 1),
             MultiLiteralArgument("levels")
         )
-        .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
+        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val world = args[0] as World
             val amount = args[2] as Int
 
@@ -433,7 +433,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(WORLD_MONEY_PERMISSION),
             DoubleArgument("amount", 1.0)
         )
-        .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
+        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val world = args[0] as World
             val amount = args[2] as Double
 
@@ -459,7 +459,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(RADIUS_MATERIAL_PERMISSION),
             plugin.settingsManager.arguments.materialArgument
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any> ->
+        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val radius = args[0] as Double
             val material = args[2] as String
 
@@ -497,7 +497,7 @@ class CommandManager(private val plugin: GiveAll) {
             plugin.settingsManager.arguments.materialArgument,
             IntegerArgument("amount", 1)
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any> ->
+        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val radius = args[0] as Double
             val material = args[2] as String
             val amount = args[3] as Int
@@ -534,7 +534,7 @@ class CommandManager(private val plugin: GiveAll) {
             MultiLiteralArgument("hand")
                 .withPermission(RADIUS_HAND_PERMISSION)
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any> ->
+        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val radius = args[0] as Double
 
             val itemStack = sender.inventory.itemInMainHand.clone()
@@ -569,7 +569,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(RADIUS_HAND_PERMISSION),
             IntegerArgument("amount", 1)
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any> ->
+        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val radius = args[0] as Double
             val amount = args[2] as Int
 
@@ -607,7 +607,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(RADIUS_XP_PERMISSION),
             IntegerArgument("amount", 1)
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any> ->
+        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val radius = args[0] as Double
             val amount = args[2] as Int
 
@@ -638,7 +638,7 @@ class CommandManager(private val plugin: GiveAll) {
             IntegerArgument("amount", 1),
             MultiLiteralArgument("levels")
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any> ->
+        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val radius = args[0] as Double
             val amount = args[2] as Int
 
@@ -668,7 +668,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(RADIUS_MONEY_PERMISSION),
             DoubleArgument("amount", 1.0)
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any> ->
+        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val radius = args[0] as Double
             val amount = args[2] as Double
 
@@ -706,7 +706,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(RADIUS_WORLD_MATERIAL_PERMISSION),
             plugin.settingsManager.arguments.materialArgument
         )
-        .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
+        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val radius = args[0] as Double
             val world = args[2] as World
             val x = args[4] as Double
@@ -761,7 +761,7 @@ class CommandManager(private val plugin: GiveAll) {
             plugin.settingsManager.arguments.materialArgument,
             IntegerArgument("amount", 1)
         )
-        .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
+        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val radius = args[0] as Double
             val world = args[2] as World
             val x = args[4] as Double
@@ -815,7 +815,7 @@ class CommandManager(private val plugin: GiveAll) {
             MultiLiteralArgument("hand")
                 .withPermission(RADIUS_WORLD_HAND_PERMISSION)
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any> ->
+        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val radius = args[0] as Double
             val world = args[2] as World
             val x = args[4] as Double
@@ -867,7 +867,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(RADIUS_WORLD_HAND_PERMISSION),
             IntegerArgument("amount", 1)
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any> ->
+        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val radius = args[0] as Double
             val world = args[2] as World
             val x = args[4] as Double
@@ -921,7 +921,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(RADIUS_WORLD_XP_PERMISSION),
             IntegerArgument("amount", 1)
         )
-        .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
+        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val radius = args[0] as Double
             val world = args[2] as World
             val x = args[4] as Double
@@ -969,7 +969,7 @@ class CommandManager(private val plugin: GiveAll) {
             IntegerArgument("amount", 1),
             MultiLiteralArgument("levels")
         )
-        .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
+        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val radius = args[0] as Double
             val world = args[2] as World
             val x = args[4] as Double
@@ -1016,7 +1016,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(RADIUS_WORLD_MONEY_PERMISSION),
             DoubleArgument("amount", 1.0)
         )
-        .executes(CommandExecutor { sender: CommandSender, args: Array<Any> ->
+        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val radius = args[0] as Double
             val world = args[2] as World
             val x = args[4] as Double
@@ -1052,7 +1052,7 @@ class CommandManager(private val plugin: GiveAll) {
             StringArgument("name"),
             TextArgument("display-name")
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any?> ->
+        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val name = args[1] as String
             val displayName = args[2] as String
 
@@ -1095,7 +1095,7 @@ class CommandManager(private val plugin: GiveAll) {
             TextArgument("display-name"),
             MultiLiteralArgument("force")
         )
-        .executesPlayer(PlayerCommandExecutor { sender: Player, args: Array<Any?> ->
+        .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val name = args[1] as String
             val displayName = args[2] as String
 
@@ -1129,7 +1129,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(SPECIAL_ITEM_REMOVE_PERMISSION),
             StringArgument("name")
         )
-        .executes(CommandExecutor { sender: CommandSender, args: Array<Any?> ->
+        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val name = args[1] as String
 
             if (!plugin.savedItemsManager.contains(name))
@@ -1156,7 +1156,7 @@ class CommandManager(private val plugin: GiveAll) {
             MultiLiteralArgument("list")
                 .withPermission(SPECIAL_ITEM_LIST_PERMISSION),
         )
-        .executes(CommandExecutor { sender: CommandSender, _: Array<Any?> ->
+        .executes(CommandExecutor { sender: CommandSender, _: CommandArguments ->
             if (plugin.savedItemsManager.getPageCount() < 1) {
                 sendMessage(sender, plugin.settingsManager.messages.itemListEmpty)
                 return@CommandExecutor
@@ -1178,7 +1178,7 @@ class CommandManager(private val plugin: GiveAll) {
                 .withPermission(SPECIAL_ITEM_LIST_PERMISSION),
             IntegerArgument("page", 1)
         )
-        .executes(CommandExecutor { sender: CommandSender, args: Array<Any?> ->
+        .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             if (plugin.savedItemsManager.getPageCount() < 1) {
                 sendMessage(sender, plugin.settingsManager.messages.itemListEmpty)
                 return@CommandExecutor

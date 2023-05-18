@@ -8,7 +8,7 @@ import com.blitzoffline.giveall.item.SavedItemsManager
 import com.blitzoffline.giveall.settings.SettingsManager
 import com.blitzoffline.giveall.task.SaveDataTask
 import dev.jorel.commandapi.CommandAPI
-import dev.jorel.commandapi.CommandAPIConfig
+import dev.jorel.commandapi.CommandAPIBukkitConfig
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
@@ -30,11 +30,11 @@ class GiveAll : JavaPlugin() {
     private lateinit var saveData: BukkitTask
 
     override fun onLoad() {
-        CommandAPI.onLoad(CommandAPIConfig().silentLogs(true))
+        CommandAPI.onLoad(CommandAPIBukkitConfig(this).shouldHookPaperReload(false).silentLogs(true))
     }
 
     override fun onEnable() {
-        CommandAPI.onEnable(this)
+        CommandAPI.onEnable()
         adventure = BukkitAudiences.create(this)
 
         settingsManager = SettingsManager(this, dataFolder)
@@ -42,7 +42,7 @@ class GiveAll : JavaPlugin() {
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
             logger.warning("Could not find PlaceholderAPI! This plugin is required!")
-            pluginLoader.disablePlugin(this)
+            return server.pluginManager.disablePlugin(this)
         }
 
         val vaultHook = settingsManager.settings.hooks["vault"]
@@ -51,20 +51,17 @@ class GiveAll : JavaPlugin() {
 
             if (vault == null) {
                 logger.warning("Could not find Vault! If you don't want to use it, disable the hook from settings.conf!")
-                pluginLoader.disablePlugin(this)
-                return
+                return server.pluginManager.disablePlugin(this)
             }
 
             if (!vault.isEnabled) {
                 logger.warning("Vault is disabled! If you don't want to use it, disable the hook from settings.conf!")
-                pluginLoader.disablePlugin(this)
-                return
+                return server.pluginManager.disablePlugin(this)
             }
 
             econ = fetchEconomy() ?: run {
                 logger.warning("Could not load the economy. Make sure vault is installed and working!")
-                pluginLoader.disablePlugin(this)
-                return
+                return server.pluginManager.disablePlugin(this)
             }
             hooked = true
         }
