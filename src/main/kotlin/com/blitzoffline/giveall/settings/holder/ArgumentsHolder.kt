@@ -1,6 +1,5 @@
 package com.blitzoffline.giveall.settings.holder
 
-import com.blitzoffline.giveall.GiveAll
 import com.blitzoffline.giveall.settings.SettingsManager
 import dev.jorel.commandapi.arguments.Argument
 import dev.jorel.commandapi.arguments.CustomArgument
@@ -19,7 +18,7 @@ class ArgumentsHolder(private val settingsManager: SettingsManager) {
         StringArgument("world"),
         CustomArgumentInfoParser { info: CustomArgumentInfo<String> ->
             return@CustomArgumentInfoParser Bukkit.getWorld(info.input)
-                ?: throw CustomArgumentException(
+                ?: throw CustomArgumentException.fromString(
                     PlainTextComponentSerializer.plainText().serialize(
                         MiniMessage.miniMessage().deserialize(
                             settingsManager.messages.wrongWorld,
