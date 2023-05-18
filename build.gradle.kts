@@ -2,8 +2,8 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("com.github.johnrengelman.shadow") version "7.1.2"
-    kotlin("jvm") version "1.7.10"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+    kotlin("jvm") version "1.8.21"
 }
 
 group = "com.blitzoffline"
