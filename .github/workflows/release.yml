@@ -1,9 +1,9 @@
 name: Release Project
 
 on:
-  release:
-    types:
-      - published
+  push:
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -23,7 +23,6 @@ jobs:
         gradle-version: 8.1.1
     - run: gradle clean shadowJar
     - name: Attach JAR to release
-      uses: actions/upload-artifact@v3
+      uses: svenstaro/upload-release-action@v2
       with:
-        name: Release JAR
-        path: build/libs/*.jar
+        file: build/libs/*.jar
