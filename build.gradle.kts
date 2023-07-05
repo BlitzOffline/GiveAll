@@ -25,25 +25,24 @@ repositories {
     // PlaceholderAPI
     maven { url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/") }
 
-
     // Adventure snapshots
     maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots") }
 }
 
 dependencies {
-    implementation("dev.jorel:commandapi-bukkit-shade:9.0.1")
+    implementation("dev.jorel:commandapi-bukkit-shade:9.0.3")
 
     implementation("org.spongepowered:configurate-hocon:4.1.2")
     implementation("org.spongepowered:configurate-extra-kotlin:4.1.2")
 
-    implementation("net.kyori:adventure-api:4.13.1")
-    implementation("net.kyori:adventure-text-serializer-plain:4.13.1")
+    implementation("net.kyori:adventure-api:4.14.0")
+    implementation("net.kyori:adventure-text-serializer-plain:4.14.0")
     implementation("net.kyori:adventure-text-minimessage:4.13.1")
     implementation("net.kyori:adventure-platform-bukkit:4.3.0")
 
     compileOnly("me.clip:placeholderapi:2.11.3")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
 }
 
 java {

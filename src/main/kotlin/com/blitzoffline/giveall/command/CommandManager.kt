@@ -155,7 +155,7 @@ class CommandManager(private val plugin: GiveAll) {
             IntegerArgument("amount", 1),
         )
         .withOptionalArguments(
-            MultiLiteralArgument("levels")
+            MultiLiteralArgument(null, listOf("levels"))
         )
         .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val levels = args.getOptional("levels").isPresent
@@ -191,7 +191,7 @@ class CommandManager(private val plugin: GiveAll) {
     private fun createWorldMaterialCommand() = CommandAPICommand("world")
         .withArguments(
             plugin.settingsManager.arguments.worldArgument,
-            MultiLiteralArgument("material")
+            MultiLiteralArgument(null, listOf("material"))
                 .withPermission(WORLD_MATERIAL_PERMISSION),
             plugin.settingsManager.arguments.materialArgument
         )
@@ -225,7 +225,7 @@ class CommandManager(private val plugin: GiveAll) {
     private fun createWorldHandCommand() = CommandAPICommand("world")
         .withArguments(
             plugin.settingsManager.arguments.worldArgument,
-            MultiLiteralArgument("hand")
+            MultiLiteralArgument(null, listOf("hand"))
                 .withPermission(WORLD_HAND_PERMISSION)
         )
         .withOptionalArguments(
@@ -258,12 +258,12 @@ class CommandManager(private val plugin: GiveAll) {
     private fun createWorldXpCommand() = CommandAPICommand("world")
         .withArguments(
             plugin.settingsManager.arguments.worldArgument,
-            MultiLiteralArgument("xp")
+            MultiLiteralArgument(null, listOf("xp"))
                 .withPermission(WORLD_XP_PERMISSION),
             IntegerArgument("amount", 1)
         )
         .withOptionalArguments(
-            MultiLiteralArgument("levels")
+            MultiLiteralArgument(null, listOf("levels"))
         )
         .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val world = args[0] as World
@@ -285,7 +285,7 @@ class CommandManager(private val plugin: GiveAll) {
     private fun createWorldMoneyCommand() = CommandAPICommand("world")
         .withArguments(
             plugin.settingsManager.arguments.worldArgument,
-            MultiLiteralArgument("money")
+            MultiLiteralArgument(null, listOf("money"))
                 .withPermission(WORLD_MONEY_PERMISSION),
             DoubleArgument("amount", 1.0)
         )
@@ -311,7 +311,7 @@ class CommandManager(private val plugin: GiveAll) {
         }
         .withArguments(
             DoubleArgument("radius", 1.0),
-            MultiLiteralArgument("material")
+            MultiLiteralArgument(null, listOf("material"))
                 .withPermission(RADIUS_MATERIAL_PERMISSION),
             plugin.settingsManager.arguments.materialArgument,
         )
@@ -352,7 +352,7 @@ class CommandManager(private val plugin: GiveAll) {
         }
         .withArguments(
             DoubleArgument("radius", 1.0),
-            MultiLiteralArgument("hand")
+            MultiLiteralArgument(null, listOf("hand"))
                 .withPermission(RADIUS_HAND_PERMISSION)
         )
         .withOptionalArguments(
@@ -392,12 +392,12 @@ class CommandManager(private val plugin: GiveAll) {
         }
         .withArguments(
             DoubleArgument("radius", 1.0),
-            MultiLiteralArgument("xp")
+            MultiLiteralArgument(null, listOf("xp"))
                 .withPermission(RADIUS_XP_PERMISSION),
             IntegerArgument("amount", 1)
         )
         .withOptionalArguments(
-            MultiLiteralArgument("levels")
+            MultiLiteralArgument(null, listOf("levels"))
         )
         .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val radius = args[0] as Double
@@ -426,7 +426,7 @@ class CommandManager(private val plugin: GiveAll) {
         }
         .withArguments(
             DoubleArgument("radius", 1.0),
-            MultiLiteralArgument("money")
+            MultiLiteralArgument(null, listOf("money"))
                 .withPermission(RADIUS_MONEY_PERMISSION),
             DoubleArgument("amount", 1.0)
         )
@@ -455,16 +455,16 @@ class CommandManager(private val plugin: GiveAll) {
         }
         .withArguments(
             DoubleArgument("radius", 1.0),
-            MultiLiteralArgument("world")
+            MultiLiteralArgument(null, listOf("world"))
                 .withRequirement { sender ->
                     RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
                 },
             plugin.settingsManager.arguments.worldArgument,
-            MultiLiteralArgument("center"),
+            MultiLiteralArgument(null, listOf("center")),
             DoubleArgument("x"),
             DoubleArgument("y"),
             DoubleArgument("z"),
-            MultiLiteralArgument("material")
+            MultiLiteralArgument(null, listOf("material"))
                 .withPermission(RADIUS_WORLD_MATERIAL_PERMISSION),
             plugin.settingsManager.arguments.materialArgument
         )
@@ -513,16 +513,16 @@ class CommandManager(private val plugin: GiveAll) {
         }
         .withArguments(
             DoubleArgument("radius", 1.0),
-            MultiLiteralArgument("world")
+            MultiLiteralArgument(null, listOf("world"))
                 .withRequirement { sender ->
                     RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
                 },
             plugin.settingsManager.arguments.worldArgument,
-            MultiLiteralArgument("center"),
+            MultiLiteralArgument(null, listOf("center")),
             DoubleArgument("x"),
             DoubleArgument("y"),
             DoubleArgument("z"),
-            MultiLiteralArgument("hand")
+            MultiLiteralArgument(null, listOf("hand"))
                 .withPermission(RADIUS_WORLD_HAND_PERMISSION)
         )
         .withOptionalArguments(
@@ -570,21 +570,21 @@ class CommandManager(private val plugin: GiveAll) {
         }
         .withArguments(
             DoubleArgument("radius", 1.0),
-            MultiLiteralArgument("world")
+            MultiLiteralArgument(null, listOf("world"))
                 .withRequirement { sender ->
                     RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
                 },
             plugin.settingsManager.arguments.worldArgument,
-            MultiLiteralArgument("center"),
+            MultiLiteralArgument(null, listOf("center")),
             DoubleArgument("x"),
             DoubleArgument("y"),
             DoubleArgument("z"),
-            MultiLiteralArgument("xp")
+            MultiLiteralArgument(null, listOf("xp"))
                 .withPermission(RADIUS_WORLD_XP_PERMISSION),
             IntegerArgument("amount", 1)
         )
         .withOptionalArguments(
-            MultiLiteralArgument("levels")
+            MultiLiteralArgument(null, listOf("levels"))
         )
         .executes(CommandExecutor { sender: CommandSender, args: CommandArguments ->
             val radius = args[0] as Double
@@ -621,16 +621,16 @@ class CommandManager(private val plugin: GiveAll) {
         }
         .withArguments(
             DoubleArgument("radius", 1.0),
-            MultiLiteralArgument("world")
+            MultiLiteralArgument(null, listOf("world"))
                 .withRequirement { sender ->
                     RADIUS_WORLD_PERMISSIONS.any { sender.hasPermission(it) }
                 },
             plugin.settingsManager.arguments.worldArgument,
-            MultiLiteralArgument("center"),
+            MultiLiteralArgument(null, listOf("center")),
             DoubleArgument("x"),
             DoubleArgument("y"),
             DoubleArgument("z"),
-            MultiLiteralArgument("money")
+            MultiLiteralArgument(null, listOf("money"))
                 .withPermission(RADIUS_WORLD_MONEY_PERMISSION),
             DoubleArgument("amount", 1.0)
         )
@@ -665,7 +665,7 @@ class CommandManager(private val plugin: GiveAll) {
             SPECIAL_ITEM_PERMISSIONS.any { sender.hasPermission(it) }
         }
         .withArguments(
-            MultiLiteralArgument("save")
+            MultiLiteralArgument(null, listOf("save"))
                 .withPermission(SPECIAL_ITEM_SAVE_PERMISSION),
             StringArgument("name"),
             TextArgument("display-name")
@@ -707,11 +707,11 @@ class CommandManager(private val plugin: GiveAll) {
             SPECIAL_ITEM_PERMISSIONS.any { sender.hasPermission(it) }
         }
         .withArguments(
-            MultiLiteralArgument("save")
+            MultiLiteralArgument(null, listOf("save"))
                 .withPermission(SPECIAL_ITEM_SAVE_PERMISSION),
             StringArgument("name"),
             TextArgument("display-name"),
-            MultiLiteralArgument("force")
+            MultiLiteralArgument(null, listOf("force"))
         )
         .executesPlayer(PlayerCommandExecutor { sender: Player, args: CommandArguments ->
             val name = args[1] as String
@@ -743,7 +743,7 @@ class CommandManager(private val plugin: GiveAll) {
             SPECIAL_ITEM_PERMISSIONS.any { sender.hasPermission(it) }
         }
         .withArguments(
-            MultiLiteralArgument("remove")
+            MultiLiteralArgument(null, listOf("remove"))
                 .withPermission(SPECIAL_ITEM_REMOVE_PERMISSION),
             StringArgument("name")
         )
@@ -771,7 +771,7 @@ class CommandManager(private val plugin: GiveAll) {
             SPECIAL_ITEM_PERMISSIONS.any { sender.hasPermission(it) }
         }
         .withArguments(
-            MultiLiteralArgument("list")
+            MultiLiteralArgument(null, listOf("list"))
                 .withPermission(SPECIAL_ITEM_LIST_PERMISSION),
         )
         .executes(CommandExecutor { sender: CommandSender, _: CommandArguments ->
@@ -792,7 +792,7 @@ class CommandManager(private val plugin: GiveAll) {
             SPECIAL_ITEM_PERMISSIONS.any { sender.hasPermission(it) }
         }
         .withArguments(
-            MultiLiteralArgument("list")
+            MultiLiteralArgument(null, listOf("list"))
                 .withPermission(SPECIAL_ITEM_LIST_PERMISSION),
             IntegerArgument("page", 1)
         )
