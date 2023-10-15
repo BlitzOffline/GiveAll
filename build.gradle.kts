@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.blitzoffline"
-version = "1.0.2"
+version = "1.0.3"
 
 repositories {
     // Adventure, Configurate, CommandAPI
@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.jorel:commandapi-bukkit-shade:9.0.3")
+    implementation("dev.jorel:commandapi-bukkit-shade:9.2.0")
 
     implementation("org.spongepowered:configurate-hocon:4.1.2")
     implementation("org.spongepowered:configurate-extra-kotlin:4.1.2")
