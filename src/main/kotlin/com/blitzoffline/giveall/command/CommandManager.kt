@@ -761,7 +761,7 @@ class CommandManager(private val plugin: GiveAll) {
             sendMessage(
                 sender,
                 plugin.settingsManager.messages.itemRemoved,
-                Placeholder.unparsed("wrong_value", name)
+                Placeholder.unparsed("name", name)
             )
         })
 
