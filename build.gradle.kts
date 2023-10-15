@@ -3,11 +3,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    kotlin("jvm") version "1.8.21"
+    kotlin("jvm") version "1.9.10"
 }
 
 group = "com.blitzoffline"
-version = "1.0.2"
+version = "1.0.3"
 
 repositories {
     // Adventure, Configurate, CommandAPI
@@ -30,19 +30,19 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.jorel:commandapi-bukkit-shade:9.0.3")
+    implementation("dev.jorel:commandapi-bukkit-shade:9.2.0")
 
     implementation("org.spongepowered:configurate-hocon:4.1.2")
     implementation("org.spongepowered:configurate-extra-kotlin:4.1.2")
 
     implementation("net.kyori:adventure-api:4.14.0")
     implementation("net.kyori:adventure-text-serializer-plain:4.14.0")
-    implementation("net.kyori:adventure-text-minimessage:4.13.1")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.0")
+    implementation("net.kyori:adventure-text-minimessage:4.14.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.3.1")
 
-    compileOnly("me.clip:placeholderapi:2.11.3")
+    compileOnly("me.clip:placeholderapi:2.11.4")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.2-R0.1-SNAPSHOT")
 }
 
 java {
