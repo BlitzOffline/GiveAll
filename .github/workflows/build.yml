@@ -24,7 +24,7 @@ jobs:
     - name: Build with Gradle
       uses: gradle/gradle-build-action@v2
       with:
-        gradle-version: 8.1.1
+        gradle-version: 8.8
     - run: gradle clean shadowJar
     - name: Upload files
       if: github.event_name != 'pull_request'
