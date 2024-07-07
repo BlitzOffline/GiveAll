@@ -1,13 +1,15 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.jvm.JvmTargetValidationMode
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("com.github.johnrengelman.shadow") version "8.1.1"
-    kotlin("jvm") version "1.9.10"
+    id("io.github.goooler.shadow") version "8.1.8"
+    kotlin("jvm") version "2.0.0"
 }
 
 group = "com.blitzoffline"
-version = "1.0.3"
+version = "1.0.4"
 
 repositories {
     // Adventure, Configurate, CommandAPI
@@ -30,23 +32,23 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.jorel:commandapi-bukkit-shade:9.2.0")
+    implementation("dev.jorel:commandapi-bukkit-shade:9.5.1")
 
     implementation("org.spongepowered:configurate-hocon:4.1.2")
     implementation("org.spongepowered:configurate-extra-kotlin:4.1.2")
 
-    implementation("net.kyori:adventure-api:4.14.0")
-    implementation("net.kyori:adventure-text-serializer-plain:4.14.0")
-    implementation("net.kyori:adventure-text-minimessage:4.14.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.1")
+    implementation("net.kyori:adventure-api:4.17.0")
+    implementation("net.kyori:adventure-text-serializer-plain:4.17.0")
+    implementation("net.kyori:adventure-text-minimessage:4.17.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.3.3")
 
-    compileOnly("me.clip:placeholderapi:2.11.4")
+    compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("io.papermc.paper:paper-api:1.20.2-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 tasks {
@@ -57,15 +59,19 @@ tasks {
             }
         }
 
-        kotlinOptions {
-            jvmTarget = "17"
+        this.jvmTargetValidationMode = JvmTargetValidationMode.IGNORE
+
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
             javaParameters = true
         }
 
         withType<ShadowJar> {
             relocate("kotlin", "com.blitzoffline.giveall.libs.kotlin")
-            relocate("dev.jorel.commandapi", "com.blitzoffline.giveall.libs.commandapi")
-            relocate("org.spongepowered.configurate", "com.blitzoffline.giveall.libs.configurate")
+            relocate("dev.jorel", "com.blitzoffline.giveall.libs.jorel")
+            relocate("org.spongepowered", "com.blitzoffline.giveall.libs.spongepowered")
+            relocate("com.typesafe", "com.blitzoffline.giveall.libs.typesafe")
+            relocate("io.leangen", "com.blitzoffline.giveall.libs.leangen")
             relocate("net.kyori", "com.blitzoffline.giveall.libs.kyori")
             archiveFileName.set("GiveAll-${project.version}.jar")
         }
