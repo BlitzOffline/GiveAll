@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.blitzoffline"
-version = "1.0.5"
+version = "1.0.6"
 
 repositories {
     // Adventure, Configurate, CommandAPI
@@ -32,19 +32,19 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.jorel:commandapi-bukkit-shade:9.5.3")
+    implementation("dev.jorel:commandapi-bukkit-shade:9.7.0")
 
     implementation("org.spongepowered:configurate-hocon:4.1.2")
     implementation("org.spongepowered:configurate-extra-kotlin:4.1.2")
 
-    implementation("net.kyori:adventure-api:4.17.0")
-    implementation("net.kyori:adventure-text-serializer-plain:4.17.0")
-    implementation("net.kyori:adventure-text-minimessage:4.17.0")
+    implementation("net.kyori:adventure-api:4.18.0")
+    implementation("net.kyori:adventure-text-serializer-plain:4.18.0")
+    implementation("net.kyori:adventure-text-minimessage:4.18.0")
     implementation("net.kyori:adventure-platform-bukkit:4.3.4")
 
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
 }
 
 java {
