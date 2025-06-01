@@ -4,12 +4,12 @@ import org.jetbrains.kotlin.gradle.dsl.jvm.JvmTargetValidationMode
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("com.gradleup.shadow") version "8.3.3"
-    kotlin("jvm") version "2.0.21"
+    id("com.gradleup.shadow") version "8.3.6"
+    kotlin("jvm") version "2.1.21"
 }
 
 group = "com.blitzoffline"
-version = "1.0.6"
+version = "1.0.7"
 
 repositories {
     // Adventure, Configurate, CommandAPI
@@ -32,19 +32,19 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.jorel:commandapi-bukkit-shade:9.7.0")
+    implementation("dev.jorel:commandapi-bukkit-shade:10.0.1")
 
     implementation("org.spongepowered:configurate-hocon:4.1.2")
     implementation("org.spongepowered:configurate-extra-kotlin:4.1.2")
 
-    implementation("net.kyori:adventure-api:4.18.0")
-    implementation("net.kyori:adventure-text-serializer-plain:4.18.0")
-    implementation("net.kyori:adventure-text-minimessage:4.18.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.4")
+    implementation("net.kyori:adventure-api:4.21.0")
+    implementation("net.kyori:adventure-text-serializer-plain:4.21.0")
+    implementation("net.kyori:adventure-text-minimessage:4.21.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.4.0")
 
     compileOnly("me.clip:placeholderapi:2.11.6")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
+    compileOnly("io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT")
 }
 
 java {
