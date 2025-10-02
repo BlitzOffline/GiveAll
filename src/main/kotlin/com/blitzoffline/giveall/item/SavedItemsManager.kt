@@ -131,10 +131,7 @@ class SavedItemsManager : Paginable {
                 .append(
                     Component.text("Next »", NamedTextColor.GREEN)
                         .clickEvent(
-                            ClickEvent.clickEvent(
-                                ClickEvent.Action.RUN_COMMAND,
-                                "/giveall special-item list ${pageNumber + 1}"
-                            )
+                            ClickEvent.runCommand("/giveall special-item list ${pageNumber + 1}")
                         ))
             pageNumber == getPageCount() -> Component.empty()
                 .append(Component.space())
@@ -142,10 +139,7 @@ class SavedItemsManager : Paginable {
                 .append(
                     Component.text("« Previous", NamedTextColor.GREEN)
                         .clickEvent(
-                            ClickEvent.clickEvent(
-                                ClickEvent.Action.RUN_COMMAND,
-                                "/giveall special-item list ${pageNumber - 1}"
-                            )
+                            ClickEvent.runCommand("/giveall special-item list ${pageNumber - 1}")
                         ))
             else -> Component.empty()
                 .append(Component.space())
@@ -153,10 +147,7 @@ class SavedItemsManager : Paginable {
                 .append(
                     Component.text("« Previous", NamedTextColor.GREEN)
                         .clickEvent(
-                            ClickEvent.clickEvent(
-                                ClickEvent.Action.RUN_COMMAND,
-                                "/giveall special-item list ${pageNumber - 1}"
-                            )
+                            ClickEvent.runCommand("/giveall special-item list ${pageNumber - 1}")
                         ))
                 .append(Component.space())
                 .append(Component.text("|", NamedTextColor.GRAY))
@@ -164,10 +155,7 @@ class SavedItemsManager : Paginable {
                 .append(
                     Component.text("Next »", NamedTextColor.GREEN)
                         .clickEvent(
-                            ClickEvent.clickEvent(
-                                ClickEvent.Action.RUN_COMMAND,
-                                "/giveall special-item list ${pageNumber + 1}"
-                            )
+                            ClickEvent.runCommand("/giveall special-item list ${pageNumber + 1}")
                         ))
         }
 
