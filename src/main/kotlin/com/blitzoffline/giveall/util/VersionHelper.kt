@@ -18,7 +18,7 @@ object VersionHelper {
         return try {
             Class.forName("com.destroystokyo.paper.PaperConfig")
             true
-        } catch (ignored: ClassNotFoundException) {
+        } catch (_: ClassNotFoundException) {
             false
         }
     }

@@ -46,7 +46,7 @@ class GiveAll : JavaPlugin() {
         }
 
         val vaultHook = settingsManager.settings.hooks["vault"]
-        if (vaultHook != null && vaultHook == true) {
+        if (vaultHook != null && vaultHook) {
             val vault = Bukkit.getPluginManager().getPlugin("Vault")
 
             if (vault == null) {
