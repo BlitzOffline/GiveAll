@@ -3,6 +3,7 @@ package com.blitzoffline.giveall.util
 import com.blitzoffline.giveall.GiveAll
 import com.blitzoffline.giveall.command.CommandManager
 import com.blitzoffline.giveall.extension.sendMessage
+import com.blitzoffline.giveall.settings.holder.IpMode
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import org.bukkit.command.CommandSender
@@ -18,12 +19,11 @@ fun handleItemGiving(
     receivers: Collection<Player>,
     vararg placeholders: TagResolver
 ) {
-    if (!handleBasicChecks(plugin, sender, receivers, *placeholders)) return
+    val filteredReceivers = filterReceivers(plugin, sender, receivers)
+    if (!handleBasicChecks(plugin, sender, filteredReceivers, *placeholders)) return
 
     var count = 0
-    for (receiver in receivers) {
-        if (!handleBasicReceiverChecks(plugin, sender, receiver)) continue
-
+    for (receiver in filteredReceivers) {
         receiver.inventory.addItem(item.clone())
         count++
 
@@ -53,10 +53,11 @@ fun handleXpGiving(
     receivers: Collection<Player>,
     vararg placeholders: TagResolver
 ) {
-    if (!handleBasicChecks(plugin, sender, receivers, *placeholders)) return
+    val filteredReceivers = filterReceivers(plugin, sender, receivers)
+    if (!handleBasicChecks(plugin, sender, filteredReceivers, *placeholders)) return
 
-    if (levels) return handleXpLevelsGiving(plugin, sender, amount, receivers, *placeholders)
-    handleXpPointsGiving(plugin, sender, amount, receivers, *placeholders)
+    if (levels) return handleXpLevelsGiving(plugin, sender, amount, filteredReceivers, *placeholders)
+    handleXpPointsGiving(plugin, sender, amount, filteredReceivers, *placeholders)
 }
 
 fun handleMoneyGiving(
@@ -66,12 +67,11 @@ fun handleMoneyGiving(
     receivers: Collection<Player>,
     vararg placeholders: TagResolver
 ) {
-    if (!handleBasicChecks(plugin, sender, receivers, *placeholders)) return
+    val filteredReceivers = filterReceivers(plugin, sender, receivers)
+    if (!handleBasicChecks(plugin, sender, filteredReceivers, *placeholders)) return
 
     var count = 0
-    for (receiver in receivers) {
-        if (!handleBasicReceiverChecks(plugin, sender, receiver)) continue
-
+    for (receiver in filteredReceivers) {
         plugin.econ.depositPlayer(receiver, amount)
         count++
 
@@ -99,8 +99,6 @@ private fun handleXpLevelsGiving(
 ) {
     var count = 0
     for (receiver in receivers) {
-        if (!handleBasicReceiverChecks(plugin, sender, receiver)) continue
-
         receiver.giveExpLevels(amount)
         count++
 
@@ -128,8 +126,6 @@ private fun handleXpPointsGiving(
 ) {
     var count = 0
     for (receiver in receivers) {
-        if (!handleBasicReceiverChecks(plugin, sender, receiver)) continue
-
         receiver.giveExp(amount)
         count++
 
@@ -163,29 +159,52 @@ private fun handleBasicChecks(
         return false
     }
 
-    if (sender is Player && receivers.size == 1 && receivers.first() == sender &&
-        !plugin.settingsManager.settings.giveRewardsToSender
-    ) {
-        sendMessage(
-            sender,
-            plugin.settingsManager.messages.noPlayers,
-            *placeholders
-        )
-        return false
-    }
-
     return true
 }
 
-private fun handleBasicReceiverChecks(
+private fun filterReceivers(
     plugin: GiveAll,
     sender: CommandSender,
-    receiver: Player
-): Boolean {
-    if (!plugin.settingsManager.settings.giveRewardsToSender && receiver == sender)
-        return false
-    if (plugin.settingsManager.settings.requirePermission && !receiver.hasPermission(RECEIVE_PERMISSION))
-        return false
+    receivers: Collection<Player>
+): Collection<Player> {
+    val filteredReceivers = receivers
+        .asSequence()
+        .filter { plugin.settingsManager.settings.giveRewardsToSender || it != sender }
+        .filter { !plugin.settingsManager.settings.requirePermission || it.hasPermission(RECEIVE_PERMISSION) }
+        .toList()
 
-    return true
+    val ipMode = plugin.settingsManager.settings.ipMode
+    if (ipMode == IpMode.ALL) return filteredReceivers
+
+    val ipMap = filteredReceivers.associateWith { it.address.address.hostAddress }
+
+    return when (ipMode) {
+        IpMode.NONE -> {
+            val counts = ipMap.values.groupingBy { it }.eachCount()
+            ipMap.filter { (_, ip) -> counts[ip] == 1 }.keys
+        }
+
+        IpMode.RANDOM -> {
+            ipMap.entries
+                .groupBy { it.value }
+                .map { (_, entries) -> entries.random() }
+                .map { it.key }
+        }
+
+        IpMode.FIRST -> {
+            ipMap.entries
+                .groupBy { it.value }
+                .map { (_, entries) -> entries.minByOrNull { it.key.name }!! }
+                .map { it.key }
+        }
+
+        IpMode.LAST -> {
+            ipMap.entries
+                .groupBy { it.value }
+                .map { (_, entries) -> entries.maxByOrNull { it.key.name }!! }
+                .map { it.key }
+        }
+
+        else -> filteredReceivers
+    }
 }

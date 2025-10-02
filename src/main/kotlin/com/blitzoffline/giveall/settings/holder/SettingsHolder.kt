@@ -6,5 +6,6 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable
 data class SettingsHolder(
     val giveRewardsToSender: Boolean = false,
     val requirePermission: Boolean = false,
-    val hooks: Map<String, Boolean> = mapOf("vault" to true)
+    val hooks: Map<String, Boolean> = mapOf("vault" to true),
+    val ipMode: IpMode = IpMode.ALL
 )
